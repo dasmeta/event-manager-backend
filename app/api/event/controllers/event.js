@@ -5,13 +5,6 @@ module.exports = {
 
 
   async find(ctx) {
-
-    console.log('-----------------------------------');
-    console.log(ctx.request.body); // todo : for post
-    console.log('-----------------------------------');
-    console.log(ctx.request.query); // todo : for get
-    console.log('-----------------------------------');
-
     const list = await strapi.services['event'].getStats();
 
     ctx.send(list);

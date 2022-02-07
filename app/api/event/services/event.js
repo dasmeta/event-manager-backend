@@ -21,8 +21,7 @@
 module.exports = {
 
   async getStats() {
-    console.log(12313221321);
-    // return getStats();
+    return getStats();
   },
 
   async getEvents() {
@@ -38,8 +37,7 @@ module.exports = {
   },
 
   async updateEventById(eventId, data) {
-    console.log(77777);
-    // return updateEventById(eventId, data);
+    return updateEventById(eventId, data);
   },
 
   async calculateStats() {
