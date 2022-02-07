@@ -1,22 +1,22 @@
-// const {
-//   getStats,
-//   getEvents,
-//   calculateStats,
-//   calculateSingleStats,
-//   republishError,
-//   republishFail,
-//   republishPreconditionFail,
-//   republishSingleError,
-//   getErrors,
-//   getEventById,
-//   updateEventById,
-//   cleanAnomaly,
-//   populateMissing,
-//   markMissingAsError,
-//   markAsFail,
-//   markAsSuccess,
-//   markSingleAsSuccess,
-// } = require("@dasmeta/event-manager-node-api");
+const {
+  getStats,
+  getEvents,
+  calculateStats,
+  calculateSingleStats,
+  republishError,
+  republishFail,
+  republishPreconditionFail,
+  republishSingleError,
+  getErrors,
+  getEventById,
+  updateEventById,
+  cleanAnomaly,
+  populateMissing,
+  markMissingAsError,
+  markAsFail,
+  markAsSuccess,
+  markSingleAsSuccess,
+} = require("@dasmeta/event-manager-node-api");
 
 module.exports = {
 
