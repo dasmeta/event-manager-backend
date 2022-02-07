@@ -1,27 +1,28 @@
-const {
-  getStats,
-  getEvents,
-  calculateStats,
-  calculateSingleStats,
-  republishError,
-  republishFail,
-  republishPreconditionFail,
-  republishSingleError,
-  getErrors,
-  getEventById,
-  updateEventById,
-  cleanAnomaly,
-  populateMissing,
-  markMissingAsError,
-  markAsFail,
-  markAsSuccess,
-  markSingleAsSuccess,
-} = require("@dasmeta/event-manager-node-api");
+// const {
+//   getStats,
+//   getEvents,
+//   calculateStats,
+//   calculateSingleStats,
+//   republishError,
+//   republishFail,
+//   republishPreconditionFail,
+//   republishSingleError,
+//   getErrors,
+//   getEventById,
+//   updateEventById,
+//   cleanAnomaly,
+//   populateMissing,
+//   markMissingAsError,
+//   markAsFail,
+//   markAsSuccess,
+//   markSingleAsSuccess,
+// } = require("@dasmeta/event-manager-node-api");
 
 module.exports = {
 
   async getStats() {
-    return getStats();
+    console.log(12313221321);
+    // return getStats();
   },
 
   async getEvents() {
@@ -37,7 +38,8 @@ module.exports = {
   },
 
   async updateEventById(eventId, data) {
-    return updateEventById(eventId, data);
+    console.log(77777);
+    // return updateEventById(eventId, data);
   },
 
   async calculateStats() {

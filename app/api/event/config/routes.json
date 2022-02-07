@@ -2,7 +2,7 @@
   "routes": [
     {
       "method": "GET",
-      "path": "/find",
+      "path": "/events/find",
       "handler": "event.find",
       "config": {
         "policies": []
@@ -10,23 +10,23 @@
     },
     {
       "method": "GET",
-      "path": "/get-history-by-events",
-      "handler": "event.getHistoryByEevents",
+      "path": "/events/get-history-by-events",
+      "handler": "event.getHistoryByEvents",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/get-event",
+      "path": "/events/get-event",
       "handler": "event.getEvent",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "PUT",
-      "path": "/update-event/:id",
+      "method": "POST",
+      "path": "/events/update-event/:id",
       "handler": "event.updateEvent",
       "config": {
         "policies": []
@@ -34,103 +34,103 @@
     },
     {
       "method": "GET",
-      "path": "/calculate-stats",
+      "path": "/events/calculate-stats",
       "handler": "event.calculateStats",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/calculate-single-stats",
+      "method": "POST",
+      "path": "/events/calculate-single-stats",
       "handler": "event.calculateSingleStats",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/republish-error",
+      "method": "POST",
+      "path": "/events/republish-error",
       "handler": "event.republishError",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/republish-fail",
+      "method": "POST",
+      "path": "/events/republish-fail",
       "handler": "event.republishFail",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/republish-precondition-fail",
+      "method": "POST",
+      "path": "/events/republish-precondition-fail",
       "handler": "event.republishPreconditionFail",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/republish-single-error",
+      "method": "POST",
+      "path": "/events/republish-single-error",
       "handler": "event.republishSingleError",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/clean-anomaly",
+      "method": "POST",
+      "path": "/events/clean-anomaly",
       "handler": "event.cleanAnomaly",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/populate-missing",
+      "method": "POST",
+      "path": "/events/populate-missing",
       "handler": "event.populateMissing",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/mark-missing-as-error",
+      "method": "POST",
+      "path": "/events/mark-missing-as-error",
       "handler": "event.markMissingAsError",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/mark-as-fail",
+      "method": "POST",
+      "path": "/events/mark-as-fail",
       "handler": "event.markAsFail",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/mark-as-success",
+      "method": "POST",
+      "path": "/events/mark-as-success",
       "handler": "event.markAsSuccess",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/mark-single-as-success",
+      "method": "POST",
+      "path": "/events/mark-single-as-success",
       "handler": "event.markSingleAsSuccess",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/get-error",
+      "method": "POST",
+      "path": "/events/get-error",
       "handler": "event.getError",
       "config": {
         "policies": []

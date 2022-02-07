@@ -5,130 +5,137 @@ module.exports = {
 
 
   async find(ctx) {
+
+    console.log('-----------------------------------');
+    console.log(ctx.request.body); // todo : for post
+    console.log('-----------------------------------');
+    console.log(ctx.request.query); // todo : for get
+    console.log('-----------------------------------');
+
     const list = await strapi.services['event'].getStats();
 
     ctx.send(list);
   },
 
-  async getHistoryByEvents(cxt) {
-    const {where, skip, limit} = cxt.request.body;
+  async getHistoryByEvents(ctx) {
+    const {where, skip, limit} = ctx.request.query;
     const {entity, entityId, ...queryParams} = JSON.parse(where);
     console.log(entity, entityId, skip, limit, queryParams);
     const result = await strapi.services['event'].getEvents(entity, entityId, queryParams, skip, limit);
 
-    cxt.send(result);
+    ctx.send(result);
   },
 
-  async getError(cxt) {
-    const {topic, subscription} = cxt.request.body;
+  async getError(ctx) {
+    const {topic, subscription} = ctx.request.query;
     const list = await strapi.services['event'].getErrors(topic, subscription);
 
-    cxt.send(list);
+    ctx.send(list);
   },
 
-  async getEvent(cxt) {
-    const {eventId} = cxt.request.body;
+  async getEvent(ctx) {
+    const {eventId} = ctx.request.query;
     const event = await strapi.services['event'].getEventById(eventId);
 
-    cxt.send(event);
+    ctx.send(event);
   },
 
-  async updateEvent(cxt) {
-    const {eventId, data} = cxt.request.body;
+  async updateEvent(ctx) {
+    const {eventId, data} = ctx.request.body;
     const event = await strapi.services['event'].updateEventById(eventId, data);
 
-    cxt.send(event);
+    ctx.send(event);
   },
 
-  async calculateStats(cxt) {
+  async calculateStats(ctx) {
     await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async calculateSingleStats(cxt) {
-    const {topic, subscription} = cxt.request.body;
+  async calculateSingleStats(ctx) {
+    const {topic, subscription} = ctx.request.body;
     await strapi.services['event'].calculateSingleStats(topic, subscription);
 
-    cxt.send();
+    ctx.send();
   },
 
-  async republishError(cxt) {
-    const {topic, subscription, limit} = cxt.request.body;
+  async republishError(ctx) {
+    const {topic, subscription, limit} = ctx.request.body;
     await strapi.services['event'].republishError(topic, subscription, parseInt(limit));
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
-  async republishFail(cxt) {
-    const {topic, subscription, limit} = cxt.request.body;
+  async republishFail(ctx) {
+    const {topic, subscription, limit} = ctx.request.body;
     await strapi.services['event'].republishFail(topic, subscription, parseInt(limit));
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async republishPreconditionFail(cxt) {
-    const {topic, subscription, limit} = cxt.request.body;
+  async republishPreconditionFail(ctx) {
+    const {topic, subscription, limit} = ctx.request.body;
     await strapi.services['event'].republishPreconditionFail(topic, subscription, parseInt(limit));
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async republishSingleError(cxt) {
-    const {topic, subscription, events} = cxt.request.body;
+  async republishSingleError(ctx) {
+    const {topic, subscription, events} = ctx.request.body;
     await strapi.services['event'].republishSingleError(topic, subscription, events);
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async cleanAnomaly(cxt) {
-    const {topic, subscription} = cxt.request.body;
+  async cleanAnomaly(ctx) {
+    const {topic, subscription} = ctx.request.body;
     await strapi.services['event'].cleanAnomaly(topic, subscription);
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async populateMissing(cxt) {
-    const {topic, subscription, as} = cxt.request.body;
+  async populateMissing(ctx) {
+    const {topic, subscription, as} = ctx.request.body;
     await strapi.services['event'].populateMissing(topic, subscription, as);
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async markMissingAsError(cxt) {
-    const {topic, subscription} = cxt.request.body;
+  async markMissingAsError(ctx) {
+    const {topic, subscription} = ctx.request.body;
     await strapi.services['event'].markMissingAsError(topic, subscription);
 
-    cxt.send();
+    ctx.send();
   },
 
-  async markAsFail(cxt) {
-    const {topic, subscription, start, end} = cxt.request.body;
+  async markAsFail(ctx) {
+    const {topic, subscription, start, end} = ctx.request.body;
     await strapi.services['event'].markAsFail(topic, subscription, new Date(start), new Date(end));
     // await strapi.services['event'].calculateStats();
 
-    cxt.send();
+    ctx.send();
   },
 
-  async markAsSuccess(cxt) {
-    const {topic, subscription, type} = cxt.request.body;
+  async markAsSuccess(ctx) {
+    const {topic, subscription, type} = ctx.request.body;
     await strapi.services['event'].markAsSuccess(topic, subscription, type);
     await strapi.services['event'].calculateSingleStats(topic, subscription);
 
-    cxt.send();
+    ctx.send();
   },
 
-  async markSingleAsSuccess(cxt) {
-    const {topic, subscription, events} = cxt.request.body;
+  async markSingleAsSuccess(ctx) {
+    const {topic, subscription, events} = ctx.request.body;
     await strapi.services['event'].markSingleAsSuccess(topic, subscription, events);
     await strapi.services['event'].calculateSingleStats(topic, subscription);
 
-    cxt.send();
+    ctx.send();
   },
 
 };
