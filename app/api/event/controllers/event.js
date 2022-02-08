@@ -2,8 +2,6 @@
 
 
 module.exports = {
-
-
   async find(ctx) {
     const list = await strapi.services['event'].getStats();
 

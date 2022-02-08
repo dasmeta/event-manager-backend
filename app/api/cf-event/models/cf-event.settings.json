@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cf_events",
+  "info": {
+    "name": "cf_event"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    }
+  }
+}
