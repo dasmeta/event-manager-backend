@@ -11,7 +11,8 @@ module.exports = {
   async getHistoryByEvents(ctx) {
     const {where, skip, limit} = ctx.request.query;
     const {entity, entityId, ...queryParams} = JSON.parse(where);
-    console.log(entity, entityId, skip, limit, queryParams);
+
+    strapi.log.debug(entity, entityId, skip, limit, queryParams);
     const result = await strapi.services['event'].getEvents(entity, entityId, queryParams, skip, limit);
 
     ctx.send(result);
