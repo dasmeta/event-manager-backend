@@ -9,6 +9,7 @@ services:
       DATABASE_PORT: 27017
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
+      SERVE_ADMIN_PANEL: true
     volumes:
       - ./app:/srv/app
     ports:
