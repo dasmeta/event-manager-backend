@@ -57,6 +57,14 @@ JWT_ALGORITHM="HS256"
 AUTHENTICATION_SERVICE_API_HOST=
 AUTHENTICATION_IS_LIVE_MODE=
 
+####################### External Packages ###################
+
+# event-manager-node-api
+MONGODB_EVENT_USERNAME=
+MONGODB_EVENT_PASSWORD=
+MONGODB_EVENT_HOST=
+MONGODB_EVENT_DB: "event"
+
 ```
 - Create and start a container ready to handle connections
 ```shell
