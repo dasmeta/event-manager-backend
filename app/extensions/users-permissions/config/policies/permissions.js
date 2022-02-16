@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const axios = require('axios');
 
 module.exports = async (ctx, next) => {
   let role;
@@ -12,16 +13,28 @@ module.exports = async (ctx, next) => {
 
   if (ctx.request && ctx.request.header && ctx.request.header.authorization) {
     try {
-      const { id } = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx);
+      const remoteUser = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx);
 
-      if (id === undefined) {
+      const { id, role, guid} = remoteUser;
+      if (id === undefined || guid === undefined) {
         throw new Error('Invalid token: Token did not contain required fields');
       }
 
-      // fetch authenticated user
-      ctx.state.user = await strapi.plugins[
-        'users-permissions'
-      ].services.user.fetchAuthenticatedUser(id);
+      if (role.type === 'root') {
+        ctx.state.user = remoteUser;
+        return await next();
+      }
+
+      if (strapi.config.custom.AUTHENTICATION_IS_LIVE_MODE) {
+        // fetch authenticated user from centralized service.
+        ctx.state.user = (await axios.get(strapi.config.custom.AUTHENTICATION_SERVICE_API_HOST + '/users/me', {
+          headers: {
+            'Authorization': ctx.request.header.authorization
+          }
+        })).data;
+      } {
+        ctx.state.user = remoteUser;
+      }
     } catch (err) {
       return handleErrors(ctx, err, 'unauthorized');
     }
@@ -66,7 +79,8 @@ module.exports = async (ctx, next) => {
   const route = ctx.request.route;
   const permission = await strapi.query('permission', 'users-permissions').findOne(
     {
-      role: role.id,
+      'role.type': role.type,
+      'role.name': role.name,
       type: route.plugin || 'application',
       controller: route.controller,
       action: route.action,

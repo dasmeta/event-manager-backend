@@ -41,7 +41,7 @@ SERVE_ADMIN_PANEL=
 # Database
 DATABASE_HOST=
 DATABASE_PORT=
-DATABASE_NAME=
+DATABASE_NAME=event-manager-backend
 DATABASE_USERNAME=
 DATABASE_PASSWORD=
 
@@ -52,6 +52,10 @@ DATABASE_SSL=
 # JWT settings to validate token
 JWT_SECRET=
 JWT_ALGORITHM="HS256"
+
+# Centralized Authentication
+AUTHENTICATION_SERVICE_API_HOST=
+AUTHENTICATION_IS_LIVE_MODE=
 
 ```
 - Create and start a container ready to handle connections
