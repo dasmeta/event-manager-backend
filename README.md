@@ -79,5 +79,5 @@ $ docker logs -f --since 2m ums
 ```
 - Run tests
 ```shell
-$ docker exec ums bash -c "npm run test"
+$ docker exec em-backend bash -c "yarn test"
 ```
