@@ -63,7 +63,7 @@ AUTHENTICATION_IS_LIVE_MODE=
 MONGODB_EVENT_USERNAME=
 MONGODB_EVENT_PASSWORD=
 MONGODB_EVENT_HOST=
-MONGODB_EVENT_DB: "event"
+MONGODB_EVENT_DB="event"
 
 ```
 - Create and start a container ready to handle connections
@@ -75,7 +75,7 @@ $ docker run --name=em-backend --env-file=.env -p "0.0.0.0:82:1337" -v"$(pwd):/a
 ## Troubleshooting & FAQ
 - View service logs
 ```shell
-$ docker logs -f --since 2m ums
+$ docker logs -f --since 2m em-backend
 ```
 - Run tests
 ```shell
