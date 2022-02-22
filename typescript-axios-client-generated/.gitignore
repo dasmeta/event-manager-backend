@@ -1,5 +1,4 @@
 wwwroot/*.js
 node_modules
 typings
-data
-.idea/*
+dist
