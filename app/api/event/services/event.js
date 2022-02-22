@@ -16,7 +16,7 @@ const {
   markAsFail,
   markAsSuccess,
   markSingleAsSuccess,
-} = require("@dasmeta/event-manager-node-api");
+} = require("./pubsubUtil");
 
 module.exports = {
 

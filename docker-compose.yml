@@ -2,6 +2,9 @@ version: '3'
 services:
   strapi:
     image: strapi/strapi
+    command: >
+      bash -c "yarn
+      && yarn develop"
     environment:
       DATABASE_CLIENT: mongo
       DATABASE_NAME: strapi
