@@ -12,10 +12,6 @@ services:
       DATABASE_PORT: 27017
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
-      MONGODB_EVENT_USERNAME: strapi
-      MONGODB_EVENT_PASSWORD: strapi
-      MONGODB_EVENT_HOST: mongo
-      MONGODB_EVENT_DB: "strapi"
       SERVE_ADMIN_PANEL: 'true'
     volumes:
       - ./app:/srv/app
