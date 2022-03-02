@@ -1,1 +1,15 @@
-**/node_modules
+*
+!app/api
+!app/backup
+!app/config
+!app/extensions
+!app/middlewares
+!app/migrations
+!app/plugins
+!app/public
+
+!app/package.json
+!app/yarn.lock
+!app/.eslint*
+!app/README.md
+!app/favicon.ico
