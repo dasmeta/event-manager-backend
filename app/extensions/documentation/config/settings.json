@@ -1,0 +1,43 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Tutor",
+    "description": "Event Manager Backend service is based on Strapi v3 JS framework.",
+    "termsOfService": "https://www.dasmeta.com/our-team/",
+    "contact": {
+      "name": "Dasmeta",
+      "email": "aram@dasmeta.com",
+      "url": "https://www.dasmeta.com/"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "x-strapi-config": {
+    "path": "/documentation",
+    "showGeneratedFiles": true,
+    "pluginsForWhichToGenerateDoc": [
+      "event"
+    ]
+  },
+  "servers": [
+    {
+      "url": "http://localhost:1337",
+      "description": "Development server"
+    }
+  ],
+  "externalDocs": {
+    "description": "Find out more about Strapi v3",
+    "url": "https://docs-v3.strapi.io/developer-docs/latest/getting-started/introduction.html"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {},
+  "tags": [],
+  "components": {}
+}

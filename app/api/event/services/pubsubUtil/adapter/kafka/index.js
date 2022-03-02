@@ -137,7 +137,7 @@ class topicAdapter {
             }]
         });
 
-        await producer.disconnect()
+        // await producer.disconnect()
         return uuid();
     }
 

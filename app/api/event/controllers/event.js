@@ -2,6 +2,14 @@
 
 
 module.exports = {
+  async create(ctx) {
+    const {topic, data, dataSource, traceId, entityProps} = ctx.request.body;
+
+    await strapi.services.event.publish(topic, data, dataSource, traceId, entityProps)
+
+    ctx.send({})
+  },
+
   async find(ctx) {
     const list = await strapi.services['event'].getStats();
 
