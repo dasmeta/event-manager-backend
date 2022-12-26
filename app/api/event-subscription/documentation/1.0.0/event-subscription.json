@@ -592,6 +592,9 @@
           },
           "traceId": {
             "type": "string"
+          },
+          "error": {
+            "type": "object"
           }
         }
       },
@@ -620,6 +623,9 @@
           },
           "traceId": {
             "type": "string"
+          },
+          "error": {
+            "type": "object"
           },
           "created_by": {
             "type": "string"

@@ -35,6 +35,9 @@
     },
     "traceId": {
       "type": "string"
+    },
+    "error": {
+      "type": "json"
     }
   }
 }
