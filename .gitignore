@@ -2,4 +2,6 @@ wwwroot/*.js
 node_modules
 typings
 data
+data-mongo
+data-postgres
 .idea/*

@@ -1,0 +1,23 @@
+version: '3'
+services:
+  strapi:
+    environment:
+      DATABASE_CLIENT: mongo
+      DATABASE_URL: mongodb://strapi:strapi@mongo/strapi?authSource=admin
+      AUTHENTICATION_DATABASE: admin
+      SERVE_ADMIN_PANEL: 'true'
+      # MQ_CLIENT_NAME: Kafka
+      # KAFKA_BROKERS: '192.168.88.93:29092'
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:4
+    environment:
+      MONGO_INITDB_DATABASE: strapi
+      MONGO_INITDB_ROOT_USERNAME: strapi
+      MONGO_INITDB_ROOT_PASSWORD: strapi
+    ports:
+      - '27817:27017'
+    volumes:
+      - ./data-mongo:/data/db

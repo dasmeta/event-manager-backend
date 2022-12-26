@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "03/02/2022 2:00:09 PM"
+    "x-generation-date": "12/26/2022 1:57:37 PM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1409,23 +1409,51 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "traceId": {
             "type": "string"
           },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
+          "topic": {
+            "type": "string"
+          },
+          "dataSource": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           }
         }
       },
       "NewEvent": {
         "properties": {
-          "name": {
+          "traceId": {
             "type": "string"
           },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
+          "topic": {
+            "type": "string"
+          },
+          "dataSource": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           },
           "created_by": {
             "type": "string"

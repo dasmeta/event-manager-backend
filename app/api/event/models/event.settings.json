@@ -2,17 +2,36 @@
   "kind": "collectionType",
   "collectionName": "events",
   "info": {
-    "name": "event"
+    "name": "event",
+    "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "traceId": {
       "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "dataSource": {
+      "type": "string"
+    },
+    "entity": {
+      "type": "string"
+    },
+    "entityId": {
+      "type": "string"
+    },
+    "messageId": {
+      "type": "string"
+    },
+    "data": {
+      "type": "json"
     }
   }
 }

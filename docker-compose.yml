@@ -1,32 +1,11 @@
 version: '3'
 services:
   strapi:
-    image: strapi/strapi
+    image: strapi/strapi:3
     command: >
       bash -c "yarn
       && yarn develop"
-    environment:
-      DATABASE_CLIENT: mongo
-      DATABASE_NAME: strapi
-      DATABASE_HOST: mongo
-      DATABASE_PORT: 27017
-      DATABASE_USERNAME: strapi
-      DATABASE_PASSWORD: strapi
-      SERVE_ADMIN_PANEL: 'true'
-      MQ_CLIENT_NAME: Kafka
-      KAFKA_BROKERS: '192.168.88.93:29092'
     volumes:
       - ./app:/srv/app
     ports:
-      - '1337:1337'
-    depends_on:
-      - mongo
-
-  mongo:
-    image: mongo
-    environment:
-      MONGO_INITDB_DATABASE: strapi
-      MONGO_INITDB_ROOT_USERNAME: strapi
-      MONGO_INITDB_ROOT_PASSWORD: strapi
-    volumes:
-      - ./data:/data/db
+      - '8037:1337'

@@ -1361,23 +1361,51 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "traceId": {
             "type": "string"
           },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
+          "topic": {
+            "type": "string"
+          },
+          "dataSource": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           }
         }
       },
       "NewEvent": {
         "properties": {
-          "name": {
+          "traceId": {
             "type": "string"
           },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
+          "topic": {
+            "type": "string"
+          },
+          "dataSource": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           },
           "created_by": {
             "type": "string"
