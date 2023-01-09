@@ -5,4 +5,15 @@
  * to customize this controller
  */
 
-module.exports = {};
+module.exports = {
+    async calculate(ctx) {
+        await strapi.services['event-stats'].calculate();
+        ctx.send();
+    },
+    async calculateSingle(ctx) {
+        const {topic, subscription} = ctx.request.body;
+        await strapi.services['event-stats'].calculateSingle(topic, subscription);
+    
+        ctx.send();
+    },
+};

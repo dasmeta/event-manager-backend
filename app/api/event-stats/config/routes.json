@@ -47,6 +47,22 @@
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "POST",
+      "path": "/event-stats/calculate",
+      "handler": "event-stats.calculate",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-stats/calculate-single",
+      "handler": "event-stats.calculateSingle",
+      "config": {
+        "policies": []
+      }
     }
   ]
 }

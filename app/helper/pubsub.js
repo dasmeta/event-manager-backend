@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-const logger = require("./helper/logger");
+const logger = require("./utils/logger");
 const {clientFactory} = require("./adapter/clientFactory");
 
 const mqClient = clientFactory.createClient();

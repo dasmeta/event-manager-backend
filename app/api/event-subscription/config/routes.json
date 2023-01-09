@@ -47,6 +47,62 @@
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "GET",
+      "path": "/event-subscriptions/errors",
+      "handler": "event-subscription.getErrors",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/clean-anomaly",
+      "handler": "event-subscription.cleanAnomaly",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/populate-missing",
+      "handler": "event-subscription.populateMissing",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-missing-as-error",
+      "handler": "event-subscription.markMissingAsError",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-as-fail",
+      "handler": "event-subscription.markAsFail",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-as-success",
+      "handler": "event-subscription.markAsSuccess",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-single-as-success",
+      "handler": "event-subscription.markSingleAsSuccess",
+      "config": {
+        "policies": []
+      }
     }
   ]
 }

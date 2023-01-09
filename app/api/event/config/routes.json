@@ -1,6 +1,30 @@
 {
   "routes": [
     {
+      "method": "GET",
+      "path": "/events",
+      "handler": "event.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/events/count",
+      "handler": "event.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/events/:id",
+      "handler": "event.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "POST",
       "path": "/events",
       "handler": "event.create",
@@ -9,49 +33,28 @@
       }
     },
     {
-      "method": "GET",
-      "path": "/events/find",
-      "handler": "event.find",
+      "method": "PUT",
+      "path": "/events/:id",
+      "handler": "event.update",
       "config": {
         "policies": []
       }
     },
     {
-      "method": "GET",
-      "path": "/events/get-history-by-events",
-      "handler": "event.getHistoryByEvents",
+      "method": "DELETE",
+      "path": "/events/:id",
+      "handler": "event.delete",
       "config": {
         "policies": []
       }
     },
-    {
-      "method": "GET",
-      "path": "/events/get-event",
-      "handler": "event.getEvent",
-      "config": {
-        "policies": []
-      }
-    },
+
+
+
     {
       "method": "POST",
-      "path": "/events/update-event/:id",
-      "handler": "event.updateEvent",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/events/calculate-stats",
-      "handler": "event.calculateStats",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/calculate-single-stats",
-      "handler": "event.calculateSingleStats",
+      "path": "/events/publish",
+      "handler": "event.publish",
       "config": {
         "policies": []
       }
@@ -84,62 +87,6 @@
       "method": "POST",
       "path": "/events/republish-single-error",
       "handler": "event.republishSingleError",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/clean-anomaly",
-      "handler": "event.cleanAnomaly",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/populate-missing",
-      "handler": "event.populateMissing",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/mark-missing-as-error",
-      "handler": "event.markMissingAsError",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/mark-as-fail",
-      "handler": "event.markAsFail",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/mark-as-success",
-      "handler": "event.markAsSuccess",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/mark-single-as-success",
-      "handler": "event.markSingleAsSuccess",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/events/get-error",
-      "handler": "event.getError",
       "config": {
         "policies": []
       }
