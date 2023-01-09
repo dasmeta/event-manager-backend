@@ -6,7 +6,105 @@
  */
 
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
+const { getSubscription } = require("../../../helper/pubsub");
+const logger = require("../../../helper/utils/logger");
+const bugsnag = require("../../../helper/utils/bugsnag");
 const store = dbClientFactory.createClient();
+
+const subscriptionHandler = (topic, subscription, handler, maxAttempts = 5) => async subscriptionObject => {
+    const onMessage = message => {
+        const { eventId, traceId, data, subscription: eventSubscription = "", dataSource } = JSON.parse(message.data.toString());
+        const context = { topic, subscription, traceId, dataSource };
+
+        if (logger.isDebug()) {
+            logger.debug(`RECEIVE eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`);
+        }
+        if (eventSubscription && subscription !== eventSubscription) {
+            if (logger.isDebug()) {
+                logger.debug(`SKIP event subscription: "${eventSubscription}", current subscription: ${subscription}`);
+            }
+            message.ack();
+            return;
+        }
+        const fulfilled = async () => {
+            if (logger.isDebug() && eventId) {
+                logger.timeEnd(`EXEC eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`);
+            }
+            if (logger.isDebug()) {
+                logger.debug("EXEC SUCCESS");
+            }
+            if (eventId) {
+                await store.recordSuccess(topic, subscription, eventId, traceId);
+            }
+            if (logger.isDebug()) {
+                logger.debug(`ACK Before eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`);
+            }
+            message.ack();
+
+            if (logger.isDebug()) {
+                logger.debug(
+                    `ACK After. Subscription Collection updated eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`
+                );
+            }
+        };
+        const rejected = async err => {
+            logger.error("HANDLE ERROR", err, { topic, subscription, data, eventId });
+            bugsnag.notify(err, { topic, subscription, data, eventId });
+            if (logger.isDebug() && eventId) {
+                logger.timeEnd(`EXEC eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`);
+            }
+            if (logger.isDebug()) {
+                logger.error("EXEC FAIL", { topic, subscription });
+            }
+
+            if (eventId) {
+                if (err.message.includes("PreconditionFailedError")) {
+                    if ((await store.hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts))) {
+                        await store.recordFailure(topic, subscription, eventId, traceId, err);
+                    } else {
+                        await store.recordPreconditionFailure(topic, subscription, eventId, traceId);
+                    }
+                } else {
+                    await store.recordFailure(topic, subscription, eventId, traceId, err);
+                }
+            }
+            if (logger.isDebug()) {
+                logger.debug("Subscription Collection updated");
+            }
+            if (! err.message.includes("PreconditionFailedError")) {
+                message.ack();
+            }
+        };
+
+        if (logger.isDebug() && eventId) {
+            logger.timeStart(`EXEC eventId: ${eventId}, topic: ${topic}, subscription: ${subscription}`);
+        }
+        if (eventId) {
+            store
+                .recordStart(topic, subscription, eventId)
+                .then(() => {
+                    handler(data, context).then(fulfilled, rejected);
+                })
+                .catch(err => {
+                    logger.error("ERROR: Can not store record start, it is probably issue with mongodb", err);
+                    bugsnag.notify(err, { topic, subscription, eventId });
+                });
+        } else {
+            handler(data, context).then(fulfilled, rejected);
+        }
+    };
+
+    const onError = err => {
+        logger.error("SUBSCRIPTION ERROR", err, { topic, subscription });
+        bugsnag.notify(err, { topic, subscription });
+        // process.exit(1);
+    };
+
+    subscriptionObject.onMessage = onMessage;
+    subscriptionObject.onError = onError;
+    subscriptionObject.on("message", onMessage);
+    subscriptionObject.on("error", onError);
+};
 
 module.exports = {
 
@@ -178,5 +276,15 @@ module.exports = {
                 isManuallyFixed: true
             }
         );
+    },
+
+    async register(topic, subscription, handler, maxAttempts) {
+        getSubscription(topic, subscription)
+            .then(subscriptionHandler(topic, subscription, handler, maxAttempts))
+            .catch(err => {
+                logger.error(`GET "${subscription}" SUBSCRIPTION ERROR`, err, { topic, subscription });
+                bugsnag.notify(err, { topic, subscription });
+                process.exit(1);
+            });
     }
 };

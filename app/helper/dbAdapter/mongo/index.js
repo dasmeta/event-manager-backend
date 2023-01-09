@@ -320,6 +320,118 @@ class client {
             }
         );
     }
+
+    async recordStart(topic, subscription, eventId, traceId) {
+        return strapi.query('event-subscription').model.findOneAndUpdate(
+            {
+                eventId: ObjectId(eventId),
+                subscription,
+            },
+            {
+                $setOnInsert: {
+                    createdAt: new Date(),
+                    eventId: ObjectId(eventId),
+                    topic,
+                    subscription,
+                },
+                $set: {
+                    traceId,
+                    isSuccess: false,
+                    isError: false,
+                    isPreconditionFail: false,
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+    }
+
+    async recordSuccess(topic, subscription, eventId, traceId) {
+        return strapi.query('event-subscription').model.updateOne(
+            {
+                eventId: ObjectId(eventId),
+                subscription,
+            },
+            {
+                $set: {
+                    eventId: ObjectId(eventId),
+                    topic,
+                    subscription,
+                    traceId,
+                    isSuccess: true,
+                    isError: false,
+                    isPreconditionFail: false,
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+    }
+
+    async recordFailure(topic, subscription, eventId, traceId, error) {
+
+        const errObject = Object.getOwnPropertyNames(error).reduce((acc, key) => {
+            acc[key] = error[key];
+            return acc;
+        }, {});
+
+        return strapi.query('event-subscription').model.updateOne(
+            {
+                eventId: ObjectId(eventId),
+                subscription,
+            },
+            {
+                $set: {
+                    eventId: ObjectId(eventId),
+                    topic,
+                    subscription,
+                    traceId,
+                    isSuccess: false,
+                    isError: true,
+                    isPreconditionFail: false,
+                    error: errObject,
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+    }
+
+    async recordPreconditionFailure(topic, subscription, eventId, traceId) {
+
+        return strapi.query('event-subscription').model.updateOne(
+            {
+                eventId: ObjectId(eventId),
+                subscription,
+            },
+            {
+                $set: {
+                    eventId: ObjectId(eventId),
+                    topic,
+                    subscription,
+                    traceId,
+                    isSuccess: false,
+                    isError: false,
+                    isPreconditionFail: true,
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+    }
+
+    async hasReachedMaxAttempts({ topic, subscription, eventId, maxAttempts = 5 }) {
+
+        const events = await strapi.query('event-subscription').model.find(
+            {
+                eventId: ObjectId(eventId),
+                subscription,
+                topic,
+                attempts: { $gt: parseInt(maxAttempts) }
+            }).toArray();
+
+        return !!events.length;
+    }
 }
 
 module.exports = {

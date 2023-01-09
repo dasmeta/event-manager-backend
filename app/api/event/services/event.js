@@ -88,6 +88,30 @@ module.exports = {
     return eventId;
   },
 
+  async nonPersistentPublish(topic, data) {
+    if (isSkip()) {
+        return null;
+    }
+    if (isDebug()) {
+        debug("BEGIN NON-PERSISTENT PUBLISH", { topic, data });
+    }
+
+    const topicObject = await getTopic(topic);
+    const message = Buffer.from(
+        JSON.stringify({
+            data,
+        })
+    );
+    if (isDebug()) {
+        debug("NON-PERSISTENT PUBLISHING...", { topic });
+    }
+    const messageId = await topicObject.publish(message);
+    if (isDebug()) {
+        debug("NON-PERSISTENT PUBLISH SUCCESS", { topic, messageId });
+    }
+    return messageId;
+  },
+
   republishError: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
     const list = await store.getErrorEvents(topic, subscription, limit);
 

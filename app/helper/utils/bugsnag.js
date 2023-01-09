@@ -1,5 +1,5 @@
 const bugsnag = require("@bugsnag/js");
-const { version } = require("../../../../../package");
+const { version } = require("../../package");
 
 const bugsnagClient = bugsnag({
     apiKey: process.env.MICROSERVICE_BUGSNAG_KEY || 'dummy',

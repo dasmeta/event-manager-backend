@@ -60,4 +60,11 @@ module.exports = {
 
         ctx.send();
     },
+
+    async register(ctx) {
+        const {topic, subscription, handler, maxAttempts} = ctx.request.body;
+        await strapi.services['event-subscription'].register(topic, subscription, new Function("return " + handler), maxAttempts);
+
+        ctx.send();
+    }
 };

@@ -50,11 +50,18 @@
     },
 
 
-
     {
       "method": "POST",
       "path": "/events/publish",
       "handler": "event.publish",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/events/non-persistent-publish",
+      "handler": "event.nonPersistentPublish",
       "config": {
         "policies": []
       }

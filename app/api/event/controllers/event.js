@@ -4,9 +4,15 @@ module.exports = {
 
   async publish(ctx) {
     const {topic, data, dataSource, traceId, entityProps} = ctx.request.body;
+    await strapi.services['event'].publish(topic, data, dataSource, traceId, entityProps);
   
-    await strapi.services['event'].publish(topic, data, dataSource, traceId, entityProps)
-  
+    ctx.send({})
+  },
+
+  async nonPersistentPublish(ctx) {
+    const {topic, data} = ctx.request.body;
+    await strapi.services['event'].nonPersistentPublish(topic, data);
+
     ctx.send({})
   },
 
