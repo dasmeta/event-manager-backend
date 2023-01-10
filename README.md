@@ -24,7 +24,7 @@ The service is based on Strapi JS framework.
 $ git clone git@github.com:dasmeta/event-manager-backend.git
 ```
 - Go to the project source `$ cd event-manager-backend`
-- Run docker-compose `$ docker-compose up -d` to start development environment.
+- Run make with prefered configuration to start development environment.
 - Run docker build to create a production ready image and install project dependencies.
 ```shell
 $ docker build -t event-manager-backend:latest .
