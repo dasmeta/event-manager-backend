@@ -19,7 +19,7 @@ module.exports = {
         await strapi.services['event-subscription'].cleanAnomaly(topic, subscription);
         // await strapi.services['event-stats'].calculateStats();
     
-        ctx.send();
+        ctx.send({});
     },
 
     async populateMissing(ctx) {
@@ -27,14 +27,14 @@ module.exports = {
         await strapi.services['event-subscription'].populateMissing(topic, subscription, as);
         // await strapi.services['event-stats'].calculateStats();
     
-        ctx.send();
+        ctx.send({});
     },
 
     async markMissingAsError(ctx) {
         const {topic, subscription} = ctx.request.body;
         await strapi.services['event-subscription'].markMissingAsError(topic, subscription);
     
-        ctx.send();
+        ctx.send({});
     },
 
     async markAsFail(ctx) {
@@ -42,7 +42,7 @@ module.exports = {
         await strapi.services['event-subscription'].markAsFail(topic, subscription, new Date(start), new Date(end));
         // await strapi.services['event-stats'].calculateStats();
     
-        ctx.send();
+        ctx.send({});
     },
 
     async markAsSuccess(ctx) {
@@ -50,7 +50,7 @@ module.exports = {
         await strapi.services['event-subscription'].markAsSuccess(topic, subscription, type);
         await strapi.services['event-stats'].calculateSingleStats(topic, subscription);
     
-        ctx.send();
+        ctx.send({});
     },
 
     async markSingleAsSuccess(ctx) {
@@ -58,13 +58,13 @@ module.exports = {
         await strapi.services['event-subscription'].markSingleAsSuccess(topic, subscription, events);
         await strapi.services['event-stats'].calculateSingleStats(topic, subscription);
 
-        ctx.send();
+        ctx.send({});
     },
 
     async register(ctx) {
         const {topic, subscription, handler, maxAttempts} = ctx.request.body;
         await strapi.services['event-subscription'].register(topic, subscription, new Function("return " + handler), maxAttempts);
 
-        ctx.send();
+        ctx.send({});
     }
 };
