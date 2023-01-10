@@ -1,0 +1,116 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/event-subscriptions",
+      "handler": "event-subscription.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/event-subscriptions/count",
+      "handler": "event-subscription.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/event-subscriptions/:id",
+      "handler": "event-subscription.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions",
+      "handler": "event-subscription.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/event-subscriptions/:id",
+      "handler": "event-subscription.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/event-subscriptions/:id",
+      "handler": "event-subscription.delete",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/event-subscriptions/errors",
+      "handler": "event-subscription.getErrors",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/clean-anomaly",
+      "handler": "event-subscription.cleanAnomaly",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/populate-missing",
+      "handler": "event-subscription.populateMissing",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-missing-as-error",
+      "handler": "event-subscription.markMissingAsError",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-as-fail",
+      "handler": "event-subscription.markAsFail",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-as-success",
+      "handler": "event-subscription.markAsSuccess",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/mark-single-as-success",
+      "handler": "event-subscription.markSingleAsSuccess",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/register",
+      "handler": "event-subscription.register",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

@@ -1,18 +1,19 @@
 {
   "paths": {
-    "/events": {
+    "/event-stats": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Find all the event-stats's records",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -51,7 +52,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
         ],
         "parameters": [
           {
@@ -194,79 +195,16 @@
       },
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new event-stats record",
         "responses": {
           "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Event"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewEvent"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/count": {
-      "get": {
-        "deprecated": false,
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "count": {
-                      "type": "integer"
+                    "foo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -306,22 +244,36 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
         ],
-        "parameters": []
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewEvent-stats"
+              }
+            }
+          }
+        }
       }
     },
-    "/events/{id}": {
+    "/event-stats/count": {
       "get": {
         "deprecated": false,
-        "description": "",
+        "description": "Retrieve the number of event-stats documents",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -359,7 +311,64 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
+        ],
+        "parameters": []
+      }
+    },
+    "/event-stats/{id}": {
+      "get": {
+        "deprecated": false,
+        "description": "Find one event-stats record",
+        "responses": {
+          "200": {
+            "description": "Retrieve event-stats document(s)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Event-stats"
         ],
         "parameters": [
           {
@@ -376,14 +385,18 @@
       },
       "put": {
         "deprecated": false,
-        "description": "Update a record",
+        "description": "Update a single event-stats record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -421,7 +434,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewEvent"
+                "$ref": "#/components/schemas/NewEvent-stats"
               }
             }
           }
@@ -449,10 +462,10 @@
       },
       "delete": {
         "deprecated": false,
-        "description": "Delete a record",
+        "description": "Delete a single event-stats record",
         "responses": {
           "200": {
-            "description": "deletes a single record based on the ID supplied",
+            "description": "deletes a single event-stats based on the ID supplied",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +508,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
         ],
         "parameters": [
           {
@@ -511,13 +524,13 @@
         ]
       }
     },
-    "/events/publish": {
+    "/event-stats/calculate": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new event-stats record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
@@ -563,7 +576,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-stats"
         ],
         "requestBody": {
           "description": "",
@@ -582,13 +595,13 @@
         }
       }
     },
-    "/events/non-persistent-publish": {
+    "/event-stats/calculate-single": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Create a new event-stats record",
         "responses": {
           "200": {
-            "description": "response",
+            "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
@@ -634,291 +647,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/republish-error": {
-      "post": {
-        "deprecated": false,
-        "description": "Create a new record",
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/republish-fail": {
-      "post": {
-        "deprecated": false,
-        "description": "Create a new record",
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/republish-precondition-fail": {
-      "post": {
-        "deprecated": false,
-        "description": "Create a new record",
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/republish-single-error": {
-      "post": {
-        "deprecated": false,
-        "description": "Create a new record",
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
+          "Event-stats"
         ],
         "requestBody": {
           "description": "",
@@ -940,7 +669,7 @@
   },
   "components": {
     "schemas": {
-      "Event": {
+      "Event-stats": {
         "required": [
           "id"
         ],
@@ -948,51 +677,85 @@
           "id": {
             "type": "string"
           },
-          "traceId": {
+          "subscription": {
             "type": "string"
           },
           "topic": {
             "type": "string"
           },
-          "dataSource": {
-            "type": "string"
+          "error": {
+            "type": "integer",
+            "default": "0"
           },
-          "entity": {
-            "type": "string"
+          "fail": {
+            "type": "integer",
+            "default": "0"
           },
-          "entityId": {
-            "type": "string"
+          "missing": {
+            "type": "integer",
+            "default": "0"
           },
-          "messageId": {
-            "type": "string"
+          "preconditionFail": {
+            "type": "integer",
+            "default": "0"
           },
-          "data": {
-            "type": "object"
+          "subscriptionCount": {
+            "type": "integer",
+            "default": "0"
+          },
+          "success": {
+            "type": "integer",
+            "default": "0"
+          },
+          "topicCount": {
+            "type": "integer",
+            "default": "0"
+          },
+          "total": {
+            "type": "integer",
+            "default": "0"
           }
         }
       },
-      "NewEvent": {
+      "NewEvent-stats": {
         "properties": {
-          "traceId": {
+          "subscription": {
             "type": "string"
           },
           "topic": {
             "type": "string"
           },
-          "dataSource": {
-            "type": "string"
+          "error": {
+            "type": "integer",
+            "default": "0"
           },
-          "entity": {
-            "type": "string"
+          "fail": {
+            "type": "integer",
+            "default": "0"
           },
-          "entityId": {
-            "type": "string"
+          "missing": {
+            "type": "integer",
+            "default": "0"
           },
-          "messageId": {
-            "type": "string"
+          "preconditionFail": {
+            "type": "integer",
+            "default": "0"
           },
-          "data": {
-            "type": "object"
+          "subscriptionCount": {
+            "type": "integer",
+            "default": "0"
+          },
+          "success": {
+            "type": "integer",
+            "default": "0"
+          },
+          "topicCount": {
+            "type": "integer",
+            "default": "0"
+          },
+          "total": {
+            "type": "integer",
+            "default": "0"
           },
           "created_by": {
             "type": "string"
@@ -1004,9 +767,5 @@
       }
     }
   },
-  "tags": [
-    {
-      "name": "Event"
-    }
-  ]
+  "tags": []
 }

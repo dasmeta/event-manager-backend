@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "event_stats",
+  "info": {
+    "name": "event_stats",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "subscription": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "error": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "fail": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "missing": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "preconditionFail": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "subscriptionCount": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "success": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "topicCount": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "total": {
+      "type": "biginteger",
+      "default": "0"
+    }
+  }
+}

@@ -7,9 +7,10 @@
 !app/migrations
 !app/plugins
 !app/public
+!app/helper
 
 !app/package.json
-!app/yarn.lock
+# !app/yarn.lock
 !app/.eslint*
 !app/README.md
 !app/favicon.ico

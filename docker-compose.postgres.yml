@@ -1,0 +1,25 @@
+version: '3'
+services:
+  strapi:
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi
+      DATABASE_NAME: strapi
+      SERVE_ADMIN_PANEL: 'true'
+      # MQ_CLIENT_NAME: Kafka
+      # KAFKA_BROKERS: '192.168.88.93:29092'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./data-postgres:/var/lib/postgresql/data

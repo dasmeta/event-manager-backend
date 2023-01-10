@@ -1,6 +1,6 @@
 {
   "paths": {
-    "/events": {
+    "/event-subscriptions": {
       "get": {
         "deprecated": false,
         "description": "",
@@ -10,9 +10,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -51,7 +52,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "parameters": [
           {
@@ -201,72 +202,9 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "summary": "",
-        "tags": [
-          "Event"
-        ],
-        "requestBody": {
-          "description": "",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewEvent"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/count": {
-      "get": {
-        "deprecated": false,
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
                   "properties": {
-                    "count": {
-                      "type": "integer"
+                    "foo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -306,12 +244,22 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
-        "parameters": []
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewEvent-subscription"
+              }
+            }
+          }
+        }
       }
     },
-    "/events/{id}": {
+    "/event-subscriptions/count": {
       "get": {
         "deprecated": false,
         "description": "",
@@ -321,7 +269,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -359,7 +311,64 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
+        ],
+        "parameters": []
+      }
+    },
+    "/event-subscriptions/{id}": {
+      "get": {
+        "deprecated": false,
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Event-subscription"
         ],
         "parameters": [
           {
@@ -383,7 +392,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -421,7 +434,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -429,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewEvent"
+                "$ref": "#/components/schemas/NewEvent-subscription"
               }
             }
           }
@@ -495,7 +508,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "parameters": [
           {
@@ -511,7 +524,64 @@
         ]
       }
     },
-    "/events/publish": {
+    "/event-subscriptions/errors": {
+      "get": {
+        "deprecated": false,
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Event-subscription"
+        ],
+        "parameters": []
+      }
+    },
+    "/event-subscriptions/clean-anomaly": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -563,7 +633,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -582,7 +652,7 @@
         }
       }
     },
-    "/events/non-persistent-publish": {
+    "/event-subscriptions/populate-missing": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -634,7 +704,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -653,7 +723,7 @@
         }
       }
     },
-    "/events/republish-error": {
+    "/event-subscriptions/mark-missing-as-error": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -705,7 +775,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -724,7 +794,7 @@
         }
       }
     },
-    "/events/republish-fail": {
+    "/event-subscriptions/mark-as-fail": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -776,7 +846,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -795,7 +865,7 @@
         }
       }
     },
-    "/events/republish-precondition-fail": {
+    "/event-subscriptions/mark-as-success": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -847,7 +917,7 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -866,7 +936,7 @@
         }
       }
     },
-    "/events/republish-single-error": {
+    "/event-subscriptions/mark-single-as-success": {
       "post": {
         "deprecated": false,
         "description": "Create a new record",
@@ -918,7 +988,78 @@
         },
         "summary": "",
         "tags": [
-          "Event"
+          "Event-subscription"
+        ],
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event-subscriptions/register": {
+      "post": {
+        "deprecated": false,
+        "description": "Create a new record",
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Event-subscription"
         ],
         "requestBody": {
           "description": "",
@@ -940,7 +1081,7 @@
   },
   "components": {
     "schemas": {
-      "Event": {
+      "Event-subscription": {
         "required": [
           "id"
         ],
@@ -948,50 +1089,96 @@
           "id": {
             "type": "string"
           },
-          "traceId": {
-            "type": "string"
-          },
           "topic": {
             "type": "string"
           },
-          "dataSource": {
+          "subscription": {
             "type": "string"
           },
-          "entity": {
+          "eventId": {
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "traceId": {
+                "type": "string"
+              },
+              "topic": {
+                "type": "string"
+              },
+              "dataSource": {
+                "type": "string"
+              },
+              "entity": {
+                "type": "string"
+              },
+              "entityId": {
+                "type": "string"
+              },
+              "messageId": {
+                "type": "string"
+              },
+              "data": {
+                "type": "object"
+              },
+              "created_by": {
+                "type": "string"
+              },
+              "updated_by": {
+                "type": "string"
+              }
+            }
+          },
+          "isError": {
+            "type": "boolean",
+            "default": false
+          },
+          "isPreconditionFail": {
+            "type": "boolean",
+            "default": false
+          },
+          "isSuccess": {
+            "type": "boolean",
+            "default": false
+          },
+          "traceId": {
             "type": "string"
           },
-          "entityId": {
-            "type": "string"
-          },
-          "messageId": {
-            "type": "string"
-          },
-          "data": {
+          "error": {
             "type": "object"
           }
         }
       },
-      "NewEvent": {
+      "NewEvent-subscription": {
         "properties": {
-          "traceId": {
-            "type": "string"
-          },
           "topic": {
             "type": "string"
           },
-          "dataSource": {
+          "subscription": {
             "type": "string"
           },
-          "entity": {
+          "eventId": {
             "type": "string"
           },
-          "entityId": {
+          "isError": {
+            "type": "boolean",
+            "default": false
+          },
+          "isPreconditionFail": {
+            "type": "boolean",
+            "default": false
+          },
+          "isSuccess": {
+            "type": "boolean",
+            "default": false
+          },
+          "traceId": {
             "type": "string"
           },
-          "messageId": {
-            "type": "string"
-          },
-          "data": {
+          "error": {
             "type": "object"
           },
           "created_by": {
@@ -1004,9 +1191,5 @@
       }
     }
   },
-  "tags": [
-    {
-      "name": "Event"
-    }
-  ]
+  "tags": []
 }
