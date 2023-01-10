@@ -7,5 +7,17 @@ services:
       && yarn develop"
     volumes:
       - ./app:/srv/app
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub:8681
+      - PUBSUB_PROJECT_ID=my-project-id
+      - GCLOUD_PROJECT=my-project-id
+      - PUBLISH_DEBUG_MODE=1
     ports:
       - '8037:1337'
+  pubsub:
+    image: messagebird/gcloud-pubsub-emulator
+    environment:
+      - PUBSUB_PROJECT1=my-project-id
+      - PUBSUB_EMULATOR_HOST=localhost:8681
+    ports:
+      - "8085:8681"

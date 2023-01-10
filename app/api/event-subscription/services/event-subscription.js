@@ -279,12 +279,15 @@ module.exports = {
     },
 
     async register(topic, subscription, handler, maxAttempts) {
-        getSubscription(topic, subscription)
-            .then(subscriptionHandler(topic, subscription, handler, maxAttempts))
-            .catch(err => {
-                logger.error(`GET "${subscription}" SUBSCRIPTION ERROR`, err, { topic, subscription });
-                bugsnag.notify(err, { topic, subscription });
-                process.exit(1);
-            });
+        try {
+            const subscriptionObject = await getSubscription(topic, subscription);
+            const sHandler = subscriptionHandler(topic, subscription, handler, maxAttempts);
+            await sHandler(subscriptionObject);
+
+        } catch (err) {
+            logger.error(`GET "${subscription}" SUBSCRIPTION ERROR`, err, { topic, subscription });
+            bugsnag.notify(err, { topic, subscription });
+            process.exit(1);
+        }
     }
 };
