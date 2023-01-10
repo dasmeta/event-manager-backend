@@ -60,9 +60,10 @@ AUTHENTICATION_IS_LIVE_MODE=
 ```
 - Create and start a container ready to handle connections
 ```shell
-$ docker run --name=em-backend --env-file=.env -p "0.0.0.0:82:1337" -v"$(pwd):/app" event-manager-backend:latest
+$ make up-with-mongo 
+$ make up-with-postgres
 ```
-- The service will be accessible on http://0.0.0.0:82
+- The service will be accessible on http://0.0.0.0:8037
 
 ## Troubleshooting & FAQ
 - View service logs
