@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "01/09/2023 3:09:29 PM"
+    "x-generation-date": "01/10/2023 7:50:57 AM"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -575,18 +575,14 @@
     "/event-stats/calculate": {
       "post": {
         "deprecated": false,
-        "description": "Create a new event-stats record",
+        "description": "Recalculate stats",
         "responses": {
           "200": {
             "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -632,11 +628,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                }
+                "properties": {}
               }
             }
           }
@@ -646,18 +638,14 @@
     "/event-stats/calculate-single": {
       "post": {
         "deprecated": false,
-        "description": "Create a new event-stats record",
+        "description": "Recalculate single stats",
         "responses": {
           "200": {
             "description": "Retrieve event-stats document(s)",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -704,7 +692,10 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
+                    "type": "string"
+                  },
+                  "subscription": {
                     "type": "string"
                   }
                 }
@@ -2393,18 +2384,14 @@
     "/events/non-persistent-publish": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Non persistent publish",
         "responses": {
           "200": {
             "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -2451,8 +2438,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
                     "type": "string"
+                  },
+                  "data": {
+                    "type": "object"
                   }
                 }
               }
@@ -2464,18 +2454,14 @@
     "/events/republish-error": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Republish event with error",
         "responses": {
           "200": {
             "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -2522,8 +2508,14 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
                     "type": "string"
+                  },
+                  "subscription": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "number"
                   }
                 }
               }
@@ -2535,18 +2527,14 @@
     "/events/republish-fail": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Republish failed event",
         "responses": {
           "200": {
             "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -2593,8 +2581,14 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
                     "type": "string"
+                  },
+                  "subscription": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "number"
                   }
                 }
               }
@@ -2606,18 +2600,14 @@
     "/events/republish-precondition-fail": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Republish precondition fail event",
         "responses": {
           "200": {
             "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -2664,8 +2654,14 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
                     "type": "string"
+                  },
+                  "subscription": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "number"
                   }
                 }
               }
@@ -2677,18 +2673,14 @@
     "/events/republish-single-error": {
       "post": {
         "deprecated": false,
-        "description": "Create a new record",
+        "description": "Republish single event with error",
         "responses": {
           "200": {
             "description": "response",
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "foo": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -2735,8 +2727,19 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "foo": {
+                  "topic": {
                     "type": "string"
+                  },
+                  "subscription": {
+                    "type": "string"
+                  },
+                  "events": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "string"
+                      ]
+                    }
                   }
                 }
               }
