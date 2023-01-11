@@ -3,3 +3,6 @@ up-with-mongo:
 
 up-with-postgres:
 	docker-compose -f docker-compose.yml -f docker-compose.postgres.yml up
+
+strapi-logs:
+	docker-compose logs -f --tail=500 strapi 

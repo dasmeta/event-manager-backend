@@ -17,9 +17,7 @@
   "devDependencies": {},
   "dependencies": {
     "@bugsnag/js": "^6.4.0",
-    "@google-cloud/pubsub": "^2.5.0",
-    "amqplib": "^0.8.0",
-    "kafkajs": "^1.15.0",
+    "@dasmeta/event-manager-utils": "^0.1.0",
     "mongodb": "^3.3.2",
     "knex": "0.21.18",
     "pg": "8.5.1",

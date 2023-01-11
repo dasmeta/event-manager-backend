@@ -1,6 +1,5 @@
 const uuid = require("uuid/v4");
-const { isSkip, isDebug, debug } = require("../../../helper/utils/logger");
-const { getTopic } = require("../../../helper/pubsub");
+const { queue, logger } = require("@dasmeta/event-manager-utils");
 
 async function createEvent(topic, traceId, data, dataSource, entityProps) {
     const body = {
@@ -28,7 +27,7 @@ async function republish(topic, subscription, list) {
         list.map(async item => {
             const eventId = item._id.toString();
             const { traceId, dataSource, data } = item;
-            const topicObject = await getTopic(topic);
+            const topicObject = await queue.getTopic(topic);
             const message = Buffer.from(
                 JSON.stringify({
                     traceId,
@@ -38,12 +37,12 @@ async function republish(topic, subscription, list) {
                     subscription,
                 })
             );
-            if (isDebug()) {
-                debug("REPUBLISHING...", { topic, subscription, eventId, traceId, dataSource });
+            if (logger.isDebug()) {
+                logger.debug("REPUBLISHING...", { topic, subscription, eventId, traceId, dataSource });
             }
             const messageId = await topicObject.publish(message);
-            if (isDebug()) {
-                debug("REPUBLISH SUCCESS", { topic, subscription, eventId, traceId, messageId, dataSource });
+            if (logger.isDebug()) {
+                logger.debug("REPUBLISH SUCCESS", { topic, subscription, eventId, traceId, messageId, dataSource });
             }
             await updateEvent(eventId, { messageId });
             return eventId;
@@ -53,22 +52,22 @@ async function republish(topic, subscription, list) {
 
 module.exports = {
   publish: async (topic, data, dataSource, traceId, entityProps = {}) => {
-    if (isSkip()) {
+    if (logger.isSkip()) {
         return null;
     }
-    if (isDebug()) {
-        debug("BEGIN PUBLISH", { topic, data });
+    if (logger.isDebug()) {
+        logger.debug("BEGIN PUBLISH", { topic, data });
     }
 
     traceId = traceId || uuid();
     dataSource = dataSource || process.env.PUBSUB_EVENTS_DATA_SOURCE || null;
     const eventId = await createEvent(topic, traceId, data, dataSource, entityProps);
 
-    if (isDebug()) {
-        debug("PERSIST EVENT", { topic, eventId, traceId, data, dataSource });
+    if (logger.isDebug()) {
+        logger.debug("PERSIST EVENT", { topic, eventId, traceId, data, dataSource });
     }
 
-    const topicObject = await getTopic(topic);
+    const topicObject = await queue.getTopic(topic);
     const message = Buffer.from(
         JSON.stringify({
             traceId,
@@ -77,37 +76,37 @@ module.exports = {
             dataSource
         })
     );
-    if (isDebug()) {
-        debug("PUBLISHING...", { topic, eventId, traceId });
+    if (logger.isDebug()) {
+        logger.debug("PUBLISHING...", { topic, eventId, traceId });
     }
     const messageId = await topicObject.publish(message);
-    if (isDebug()) {
-        debug("PUBLISH SUCCESS", { topic, eventId, traceId, messageId, dataSource });
+    if (logger.isDebug()) {
+        logger.debug("PUBLISH SUCCESS", { topic, eventId, traceId, messageId, dataSource });
     }
     await updateEvent(eventId, { messageId });
     return eventId;
   },
 
   async nonPersistentPublish(topic, data) {
-    if (isSkip()) {
+    if (logger.isSkip()) {
         return null;
     }
-    if (isDebug()) {
-        debug("BEGIN NON-PERSISTENT PUBLISH", { topic, data });
+    if (logger.isDebug()) {
+        logger.debug("BEGIN NON-PERSISTENT PUBLISH", { topic, data });
     }
 
-    const topicObject = await getTopic(topic);
+    const topicObject = await queue.getTopic(topic);
     const message = Buffer.from(
         JSON.stringify({
             data,
         })
     );
-    if (isDebug()) {
-        debug("NON-PERSISTENT PUBLISHING...", { topic });
+    if (logger.isDebug()) {
+        logger.debug("NON-PERSISTENT PUBLISHING...", { topic });
     }
     const messageId = await topicObject.publish(message);
-    if (isDebug()) {
-        debug("NON-PERSISTENT PUBLISH SUCCESS", { topic, messageId });
+    if (logger.isDebug()) {
+        logger.debug("NON-PERSISTENT PUBLISH SUCCESS", { topic, messageId });
     }
     return messageId;
   },
@@ -115,8 +114,8 @@ module.exports = {
   republishError: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
     const list = await store.getErrorEvents(topic, subscription, limit);
 
-    if (isDebug()) {
-        debug("REPUBLISH ERROR", { topic, subscription, count: list.length });
+    if (logger.isDebug()) {
+        logger.debug("REPUBLISH ERROR", { topic, subscription, count: list.length });
     }
 
     return republish(topic, subscription, list);
@@ -125,8 +124,8 @@ module.exports = {
   republishFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
     const list = await store.getFailEvents(topic, subscription, limit);
 
-    if (isDebug()) {
-        debug("REPUBLISH FAIL", { topic, subscription, count: list.length });
+    if (logger.isDebug()) {
+        logger.debug("REPUBLISH FAIL", { topic, subscription, count: list.length });
     }
 
     return republish(topic, subscription, list);
@@ -135,8 +134,8 @@ module.exports = {
   republishPreconditionFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
     const list = await store.getPreconditionFailEvents(topic, subscription, limit);
 
-    if (isDebug()) {
-        debug("REPUBLISH PRECONDITION FAIL", { topic, subscription, count: list.length });
+    if (logger.isDebug()) {
+        logger.debug("REPUBLISH PRECONDITION FAIL", { topic, subscription, count: list.length });
     }
 
     return republish(topic, subscription, list);
@@ -146,8 +145,8 @@ module.exports = {
     const list = await strapi.query('event')
         .find({ id_in: events, _sort: 'createdAt:asc' });
 
-    if (isDebug()) {
-        debug("REPUBLISH SINGLE ERROR", { topic, subscription, events });
+    if (logger.isDebug()) {
+        logger.debug("REPUBLISH SINGLE ERROR", { topic, subscription, events });
     }
 
     return republish(topic, subscription, list);

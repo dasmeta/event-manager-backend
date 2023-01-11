@@ -103,14 +103,6 @@
       "config": {
         "policies": []
       }
-    },
-    {
-      "method": "POST",
-      "path": "/event-subscriptions/register",
-      "handler": "event-subscription.register",
-      "config": {
-        "policies": []
-      }
     }
   ]
 }
