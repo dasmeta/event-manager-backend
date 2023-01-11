@@ -60,4 +60,39 @@ module.exports = {
 
         ctx.send({});
     },
+
+    async recordStart(ctx) {
+        const {topic, subscription, eventId, traceId} = ctx.request.body;
+        await strapi.services['event-subscription'].recordStart(topic, subscription, eventId, traceId);
+
+        ctx.send({});
+    },
+
+    async recordSuccess(ctx) {
+        const {topic, subscription, eventId, traceId} = ctx.request.body;
+        await strapi.services['event-subscription'].recordSuccess(topic, subscription, eventId, traceId);
+
+        ctx.send({});
+    },
+
+    async recordFailure(ctx) {
+        const {topic, subscription, eventId, traceId, error} = ctx.request.body;
+        await strapi.services['event-subscription'].recordFailure(topic, subscription, eventId, traceId, error);
+
+        ctx.send({});
+    },
+
+    async recordPreconditionFailure(ctx) {
+        const {topic, subscription, eventId, traceId} = ctx.request.body;
+        await strapi.services['event-subscription'].recordPreconditionFailure(topic, subscription, eventId, traceId);
+
+        ctx.send({});
+    },
+
+    async hasReachedMaxAttempts(ctx) {
+        const {topic, subscription, eventId, maxAttempts} = ctx.request.query;
+        const result = await strapi.services['event-subscription'].hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts);
+
+        ctx.send({ result });
+    },
 };

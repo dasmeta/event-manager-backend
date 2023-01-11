@@ -103,6 +103,46 @@
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/record-start",
+      "handler": "event-subscription.recordStart",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/record-success",
+      "handler": "event-subscription.recordSuccess",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/record-failure",
+      "handler": "event-subscription.recordFailure",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/event-subscriptions/record-precondition-failure",
+      "handler": "event-subscription.recordPreconditionFailure",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/event-subscriptions/has-reached-max-attempts",
+      "handler": "event-subscription.hasReachedMaxAttempts",
+      "config": {
+        "policies": []
+      }
     }
   ]
 }

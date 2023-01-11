@@ -420,7 +420,7 @@ class client {
         );
     }
 
-    async hasReachedMaxAttempts({ topic, subscription, eventId, maxAttempts = 5 }) {
+    async hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts = 5) {
 
         const events = await strapi.query('event-subscription').model.find(
             {

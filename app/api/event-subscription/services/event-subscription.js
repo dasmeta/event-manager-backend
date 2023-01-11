@@ -177,5 +177,25 @@ module.exports = {
                 isManuallyFixed: true
             }
         );
+    },
+
+    async recordStart(topic, subscription, eventId, traceId) {
+        return store.recordStart(topic, subscription, eventId, traceId);
+    },
+
+    async recordSuccess(topic, subscription, eventId, traceId) {
+        return store.recordSuccess(topic, subscription, eventId, traceId);
+    },
+
+    async recordFailure(topic, subscription, eventId, traceId, error) {
+        return store.recordFailure(topic, subscription, eventId, traceId, error);
+    },
+
+    async recordPreconditionFailure(topic, subscription, eventId, traceId) {
+        return store.recordPreconditionFailure(topic, subscription, eventId, traceId);
+    },
+
+    async hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts = 5) {
+        return store.hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts);
     }
 };
