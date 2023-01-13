@@ -2,7 +2,7 @@ const { ObjectId } = require("mongodb");
 
 class client {
     async getErrors(topic, subscription) {
-        return await strapi.query('event-subscription').model
+        return strapi.query('event-subscription').model
             .aggregate([
                 {
                     $match: {
