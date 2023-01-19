@@ -5,6 +5,7 @@
  * to customize this service
  */
 
+const { logger } = require("@dasmeta/event-manager-utils");
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
 const store = dbClientFactory.createClient();
 
@@ -72,15 +73,15 @@ module.exports = {
 
     async markMissingAsError(topic, subscription) {
 
-        if (isDebug()) {
-            debug("MARK MISSING AS ERROR START SLOW RUNNING...", { topic, subscription });
+        if (logger.isDebug()) {
+            logger.debug("MARK MISSING AS ERROR START SLOW RUNNING...", { topic, subscription });
         }
 
         const limit = 10000;
         let insertCount = 0;
         for (let i = 0; i <= 1000; i++) {
-            if (isDebug()) {
-                debug(`Iteration ${i}`, { topic, subscription });
+            if (logger.isDebug()) {
+                logger.debug(`Iteration ${i}`, { topic, subscription });
             }
 
             const events = await store.getEventsByTopic(topic, i * limit, limit);
@@ -107,8 +108,6 @@ module.exports = {
                     topic,
                     subscription,
                     {
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
                         isSuccess: false,
                         isError: true,
                         isPreconditionFail: false,
@@ -119,14 +118,14 @@ module.exports = {
                     }
                 )
 
-                if (isDebug()) {
-                    debug(`Inserted Record:`, { topic, subscription, eventId });
+                if (logger.isDebug()) {
+                    logger.debug(`Inserted Record:`, { topic, subscription, eventId });
                 }
             }
         }
 
-        if (isDebug()) {
-            debug(`Inserted Count: ${insertCount}`, { topic, subscription });
+        if (logger.isDebug()) {
+            logger.debug(`Inserted Count: ${insertCount}`, { topic, subscription });
         }
 
         return {

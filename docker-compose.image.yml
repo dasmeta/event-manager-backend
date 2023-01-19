@@ -1,0 +1,9 @@
+version: '3'
+services:
+  strapi:
+    image: strapi/strapi:3
+    command: >
+      bash -c "yarn
+      && yarn develop"
+    volumes:
+      - ./app:/srv/app

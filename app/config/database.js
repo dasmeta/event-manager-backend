@@ -1,8 +1,8 @@
 module.exports = ({ env }) => {
 
-  if(!['mongo', 'postgres'].includes(env("DATABASE_CLIENT"))) {
-    throw new Error('Wrong client specified');
-  }
+  // if(!['mongo', 'postgres'].includes(env("DATABASE_CLIENT"))) {
+  //   throw new Error('Wrong client specified');
+  // }
 
   const client = env("DATABASE_CLIENT")
 

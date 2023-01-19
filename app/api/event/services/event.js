@@ -1,5 +1,7 @@
 const uuid = require("uuid/v4");
 const { queue, logger } = require("@dasmeta/event-manager-utils");
+const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
+const store = dbClientFactory.createClient();
 
 async function createEvent(topic, traceId, data, dataSource, entityProps) {
     const body = {

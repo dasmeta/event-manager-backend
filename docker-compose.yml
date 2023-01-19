@@ -1,19 +1,13 @@
 version: '3'
 services:
   strapi:
-    image: strapi/strapi:3
-    command: >
-      bash -c "yarn
-      && yarn develop"
-    volumes:
-      - ./app:/srv/app
     environment:
       - PUBSUB_EMULATOR_HOST=pubsub:8681
       - PUBSUB_PROJECT_ID=my-project-id
       - GCLOUD_PROJECT=my-project-id
       - PUBLISH_DEBUG_MODE=1
-      - MQ_CLIENT_NAME=AMQP
-      - RABBITMQ_URL=amqp://rabbitmq
+      # - MQ_CLIENT_NAME=AMQP
+      # - RABBITMQ_URL=amqp://rabbitmq
     ports:
       - 8037:1337
   pubsub:

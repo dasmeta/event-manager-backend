@@ -1,133 +1,139 @@
 class client {
     async getErrors(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic,
-                        subscription,
-                        isError: true,
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$error.message",
-                        count: {$sum: 1},
-                        error: {$first: "$error"},
-                        eventIds: {$addToSet: "$eventId"},
-                    },
-                },
-            ])
-            .toArray();
+        const knex = strapi.connections.default;
+
+        return knex('event_subscription')
+            .where({
+                topic,
+                subscription,
+                isError: true
+            })
+            .select({
+                _id: knex.raw("error->>'message'"),
+                count: knex.raw('COUNT(id)'),
+                error: knex.raw("error"),
+                eventIds: knex.raw('ARRAY_AGG("eventId")')
+            })
+            .groupByRaw("error->>'message', error");
     }
 
     async getGroupedEvents() {
-        return strapi.query('event').model
-            .aggregate([
-                {
-                    $group: {
-                        _id: "$topic",
-                        total: { $sum: 1 },
-                    },
-                },
-            ])
-            .toArray();
+        const knex = strapi.connections.default;
+        return knex('event')
+            .groupBy('topic')
+            .select({ _id: 'topic', total: knex.raw('COUNT(id)')})
     }
 
     async getGroupedSubscriptions() {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $group: {
-                        _id: {
-                            topic: "$topic",
-                            subscription: "$subscription",
-                        },
-                        count: { $sum: 1 },
-                        success: { $sum: { $cond: ["$isSuccess", 1, 0] } },
-                        error: { $sum: { $cond: ["$isError", 1, 0] } },
-                        preconditionFail: { $sum: { $cond: ["$isPreconditionFail", 1, 0] } },
-                    },
-                },
-            ])
-            .toArray();
+        const knex = strapi.connections.default;
+        const result = await knex('event_subscription')
+            .groupBy(['topic', 'subscription'])
+            .select({ 
+                topic: 'topic', 
+                subscription: 'subscription',
+                count: knex.raw('COUNT(id)'),
+                success: knex.raw('COUNT(nullif("isSuccess", false))'),
+                error: knex.raw('COUNT(nullif("isError", false))'),
+                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))')
+            });
+
+        return result.map(item => ({
+            _id: {
+                topic: item.topic,
+                subscription: item.subscription
+            },
+            count: item.count,
+            success: item.success,
+            error: item.error,
+            preconditionFail: item.preconditionFail
+        }))
     }
 
     async getGroupedSubscriptionsForSingleTopic(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic,
-                        subscription
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        count: { $sum: 1 },
-                        success: { $sum: { $cond: ["$isSuccess", 1, 0] } },
-                        error: { $sum: { $cond: ["$isError", 1, 0] } },
-                        preconditionFail: { $sum: { $cond: ["$isPreconditionFail", 1, 0] } },
-                    },
-                },
-            ]).toArray();
+        const knex = strapi.connections.default;
+        return knex('event_subscription')
+            .where({
+                topic,
+                subscription
+            })
+            .groupBy(['topic', 'subscription'])
+            .select({ 
+                count: knex.raw('COUNT(id)'),
+                success: knex.raw('COUNT(nullif("isSuccess", false))'),
+                error: knex.raw('COUNT(nullif("isError", false))'),
+                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))')
+            });
     }
 
     async createOrUpdateStats(topic, subscription, data) {
-        return strapi.query('event-stats').model.updateOne(
-            { topic, subscription },
-            {
-                $set: {
-                    topic,
-                    subscription,
-                    ...data
-                },
-            },
-            { upsert: true }
-        );
+        const stats = await strapi.query('event-stats').model
+            .where({
+                topic,
+                subscription
+            })
+            .fetch();
+
+        if(stats) {
+            return stats.save({
+                topic,
+                subscription,
+                ...data,
+            })
+        }
+
+        return strapi.query('event-stats').model
+            .forge({})
+            .save({
+                topic,
+                subscription,
+                ...data,
+            });
     }
 
     async getErrorEvents(topic, subscription, limit) {
         const eventIdList = await strapi.query('event-subscription').model
-            .find({
+            .where({
                 topic,
                 subscription,
                 isError: true,
                 isPreconditionFail: false,
                 isSuccess: false,
             })
-            .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            .orderBy({ 'createdAt': 'ASC' })
+            .fetchPage({
+                columns: ['eventId'],
+                limit
+            });
 
         const ids = eventIdList.map(item => item.eventId);
         return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+            .where('id', 'in', ids)
+            .orderBy({ 'createdAt': 'ASC' })
+            .fetchAll();
     }
 
     async getFailEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .find({
+        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+            qb.where({
                 topic,
                 subscription,
                 isError: false,
                 isPreconditionFail: false,
-                isSuccess: false,
+                isSuccess: false
             })
-            .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            qb.select({ eventId: 'eventId'})
+            qb.orderBy('created_at', 'asc')
+        }).fetchPage({
+            limit,
+            withRelated: [],
+        });
 
-        const ids = eventIdList.map(item => item.eventId);
+        const ids = eventIdList.toJSON().map(item => item.eventId);
+        console.log(ids);
         return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+            .where('id', 'in', ids)
+            .orderBy({ 'created_at': 'ASC' })
+            .fetchAll();
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {

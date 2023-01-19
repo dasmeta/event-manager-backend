@@ -48,7 +48,7 @@ module.exports = {
     async markAsSuccess(ctx) {
         const {topic, subscription, type} = ctx.request.body;
         await strapi.services['event-subscription'].markAsSuccess(topic, subscription, type);
-        await strapi.services['event-stats'].calculateSingleStats(topic, subscription);
+        await strapi.services['event-stats'].calculateSingle(topic, subscription);
     
         ctx.send({});
     },
@@ -56,7 +56,7 @@ module.exports = {
     async markSingleAsSuccess(ctx) {
         const {topic, subscription, events} = ctx.request.body;
         await strapi.services['event-subscription'].markSingleAsSuccess(topic, subscription, events);
-        await strapi.services['event-stats'].calculateSingleStats(topic, subscription);
+        await strapi.services['event-stats'].calculateSingle(topic, subscription);
 
         ctx.send({});
     },

@@ -14,3 +14,11 @@
 !app/.eslint*
 !app/README.md
 !app/favicon.ico
+
+!ui/public
+!ui/src
+!ui/.umirc.ts
+!ui/package.json
+!ui/tsconfig.json
+!ui/typings.d.ts
+# !ui/yarn.lock

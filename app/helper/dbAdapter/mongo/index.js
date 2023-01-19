@@ -19,8 +19,7 @@ class client {
                         eventIds: {$addToSet: "$eventId"},
                     },
                 },
-            ])
-            .toArray();
+            ]);
     }
 
     async getGroupedEvents() {
@@ -32,8 +31,7 @@ class client {
                         total: { $sum: 1 },
                     },
                 },
-            ])
-            .toArray();
+            ]);
     }
 
     async getGroupedSubscriptions() {
@@ -51,8 +49,7 @@ class client {
                         preconditionFail: { $sum: { $cond: ["$isPreconditionFail", 1, 0] } },
                     },
                 },
-            ])
-            .toArray();
+            ]);
     }
 
     async getGroupedSubscriptionsForSingleTopic(topic, subscription) {
@@ -73,7 +70,7 @@ class client {
                         preconditionFail: { $sum: { $cond: ["$isPreconditionFail", 1, 0] } },
                     },
                 },
-            ]).toArray();
+            ]);
     }
 
     async createOrUpdateStats(topic, subscription, data) {
@@ -100,15 +97,13 @@ class client {
                 isSuccess: false,
             })
             .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            .select({ eventId: 1 })
+            .limit(limit);
 
         const ids = eventIdList.map(item => item.eventId);
         return strapi.query('event').model
             .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+            .sort({ createdAt: 1 });
     }
 
     async getFailEvents(topic, subscription, limit) {
@@ -121,15 +116,13 @@ class client {
                 isSuccess: false,
             })
             .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            .select({ eventId: 1 })
+            .limit(limit);
 
         const ids = eventIdList.map(item => item.eventId);
         return strapi.query('event').model
             .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+            .sort({ createdAt: 1 });
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
@@ -142,15 +135,13 @@ class client {
                 isSuccess: false
             })
             .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            .select({ eventId: 1 })
+            .limit(limit);
 
         const ids = eventIdList.map(item => item.eventId);
         return strapi.query('event').model
             .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+            .sort({ createdAt: 1 });
     }
 
     async getSubscriptionsWithoutEvents(topic, subscription) {
@@ -182,8 +173,7 @@ class client {
                         _id: 1,
                     },
                 },
-            ])
-            .toArray();
+            ]);
     }
 
     async getDuplicateSubscriptions(topic, subscription) {
@@ -203,8 +193,7 @@ class client {
                     },
                 },
                 { $match: { count: { $gt: 1 } } },
-            ])
-            .toArray();
+            ]);
     }
 
     async getMissingEvents(topic, subscription) {
@@ -228,28 +217,22 @@ class client {
                         }
                     }
                 }
-            ],
-                {
-                    allowDiskUse: true
-                }
-            )
-            .toArray();
+            ])
+            .allowDiskUse(true);
     }
 
     async getExistingEvents(ids) {
         return strapi.query('event').model
-            .find({ id: ids })
-            .project({ _id: 1 })
-            .toArray();
+            .find({ _id: ids })
+            .select({ _id: 1 });
     }
 
     async getEventsByTopic(topic, start, limit) {
         return strapi.query('event').model
             .find({ topic })
-            .project({ _id: 1 })
+            .select({ _id: 1 })
             .skip(start)
-            .limit(limit)
-            .toArray();
+            .limit(limit);
     }
 
     async getEventsWithSubscription(subscription, eventIds) {
@@ -428,7 +411,7 @@ class client {
                 subscription,
                 topic,
                 attempts: { $gt: parseInt(maxAttempts) }
-            }).toArray();
+            });
 
         return !!events.length;
     }
