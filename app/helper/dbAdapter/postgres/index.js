@@ -220,32 +220,18 @@ class client {
     }
 
     async getMissingEvents(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic
-                    }
-                },
-                {
-                    $group: {
-                        _id: { eventId: "$eventId" },
-                        subscriptions: { $push: "$subscription" }
-                    }
-                },
-                {
-                    $match: {
-                        "subscriptions": {
-                            $nin: [subscription]
-                        }
-                    }
-                }
-            ],
-                {
-                    allowDiskUse: true
-                }
-            )
-            .toArray();
+        const knex = strapi.connections.default;
+
+        return knex('event_subscription')
+            .select({ 
+                id: 'eventId',
+                subscriptions: knex.raw('ARRAY_AGG(subscription)')
+            })
+            .where({
+                topic
+            })
+            .groupBy('eventId')
+            .havingNotIn(knex.raw('ARRAY_AGG(subscription)'), `{${subscription}}`);
     }
 
     async getExistingEvents(ids) {

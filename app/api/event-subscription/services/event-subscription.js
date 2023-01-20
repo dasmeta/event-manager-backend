@@ -20,9 +20,9 @@ module.exports = {
 
     async populateMissing(topic, subscription, as = "fail") {
         const missingEvents = await store.getMissingEvents(topic, subscription);
-        const missingEventIds = missingEvents.map(o => o._id.eventId.toString());
+        const missingEventIds = missingEvents.map(o => o._id ? o._id.eventId.toString() : o.id);
     
-        const events = (await store.getExistingEvents(missingEventIds)).map(item => item._id.toString());
+        const events = (await store.getExistingEvents(missingEventIds)).map(item => item._id ? item._id.toString() : item.id);
     
         let insertCount = 0;
         for (const eventId of events) {
