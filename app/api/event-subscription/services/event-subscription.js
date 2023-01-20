@@ -15,25 +15,7 @@ module.exports = {
     },
 
     async cleanAnomaly(topic, subscription) {
-        const list = await store.getSubscriptionsWithoutEvents(topic, subscription);
-    
-        const duplicates = await store.getDuplicateSubscriptions(topic, subscription);
-    
-        const bulk = strapi.query('event-subscription').model.collection.initializeOrderedBulkOp();
-        list.forEach(item => {
-            bulk.find({ _id: item._id }).remove();
-        });
-        duplicates.forEach(item => {
-            const eventId = item._id;
-            const createdAts = item.createdAts.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime());
-            createdAts.pop();
-            createdAts.forEach(createdAt => {
-                bulk.find({ eventId, createdAt }).remove();
-            });
-        });
-        if (bulk.length) {
-            await bulk.execute();
-        }
+        return store.removeUnnecessarySubscriptions(topic, subscription);
     },
 
     async populateMissing(topic, subscription, as = "fail") {
@@ -85,7 +67,7 @@ module.exports = {
             }
 
             const events = await store.getEventsByTopic(topic, i * limit, limit);
-            const eventIds = events.map(item => item._id);
+            const eventIds = events.map(item => item._id || item.id);
 
             if (events.length === 0) {
                 break;
@@ -103,10 +85,11 @@ module.exports = {
                 }
 
                 insertCount++;
-                await store.createOrUpdateSubscription(
-                    eventId,
-                    topic,
-                    subscription,
+                await store.createOrUpdateSubscription({
+                        eventId,
+                        topic,
+                        subscription,
+                    },
                     {
                         isSuccess: false,
                         isError: true,
@@ -157,8 +140,8 @@ module.exports = {
             {
                 isSuccess: true,
                 isError: false,
-                isPreconditionFail: false,
-                isManuallyFixed: true
+                isPreconditionFail: false
+                // isManuallyFixed: true
             }
         )
     },
@@ -173,7 +156,7 @@ module.exports = {
                 isSuccess: true,
                 isError: false,
                 isPreconditionFail: false,
-                isManuallyFixed: true
+                // isManuallyFixed: true
             }
         );
     },

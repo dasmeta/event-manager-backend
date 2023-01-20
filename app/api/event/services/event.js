@@ -27,7 +27,7 @@ async function updateEvent(eventId, data) {
 async function republish(topic, subscription, list) {
     return Promise.all(
         list.map(async item => {
-            const eventId = item._id.toString();
+            const eventId = item._id ? item._id.toString() : item.id;
             const { traceId, dataSource, data } = item;
             const topicObject = await queue.getTopic(topic);
             const message = Buffer.from(
@@ -144,8 +144,9 @@ module.exports = {
   },
 
   republishSingleError: async (topic, subscription, events) => {
-    const list = await strapi.query('event')
-        .find({ id_in: events, _sort: 'createdAt:asc' });
+    const list = await store.getEventsByIds(events);
+
+    console.log(list);
 
     if (logger.isDebug()) {
         logger.debug("REPUBLISH SINGLE ERROR", { topic, subscription, events });

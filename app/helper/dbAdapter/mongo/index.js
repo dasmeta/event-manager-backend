@@ -196,6 +196,28 @@ class client {
             ]);
     }
 
+    async removeUnnecessarySubscriptions(topic, subscription) {
+        const list = await this.getSubscriptionsWithoutEvents(topic, subscription);
+    
+        const duplicates = await this.getDuplicateSubscriptions(topic, subscription);
+    
+        const bulk = strapi.query('event-subscription').model.collection.initializeOrderedBulkOp();
+        list.forEach(item => {
+            bulk.find({ _id: item._id }).remove();
+        });
+        duplicates.forEach(item => {
+            const eventId = item._id;
+            const createdAts = item.createdAts.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime());
+            createdAts.pop();
+            createdAts.forEach(createdAt => {
+                bulk.find({ eventId, createdAt }).remove();
+            });
+        });
+        if (bulk.length) {
+            await bulk.execute();
+        }
+    }
+
     async getMissingEvents(topic, subscription) {
         return strapi.query('event-subscription').model
             .aggregate([
@@ -227,6 +249,12 @@ class client {
             .select({ _id: 1 });
     }
 
+    async getEventsByIds(ids) {
+        return strapi.query('event').model
+            .find({ _id: ids })
+            .sort({ createdAt: 1});
+    }
+
     async getEventsByTopic(topic, start, limit) {
         return strapi.query('event').model
             .find({ topic })
@@ -242,18 +270,12 @@ class client {
         });
     }
 
-    async createOrUpdateSubscription(eventId, topic, subscription, data) {
+    async createOrUpdateSubscription(condition, data) {
         return strapi.query('event-subscription').model.update(
-            {
-                eventId,
-                topic,
-                subscription
-            },
+            condition,
             {
                 "$setOnInsert": {
-                    eventId,
-                    topic,
-                    subscription,
+                    ...condition,
                     ...data
                 }
             },

@@ -26,7 +26,6 @@ export default React.memo(({
     refresh,
     list,
     filterKey,
-    markAsSuccess,
     updateEvent
 }) => {
 
@@ -178,7 +177,6 @@ export default React.memo(({
                                     type="preconditionFail"
                                     topic={item.topic}
                                     subscription={item.subscription}
-                                    markAsSuccess={markAsSuccess}
                                     refresh={refresh}
                                 />
                             )}
@@ -189,7 +187,6 @@ export default React.memo(({
                                     type="fail"
                                     topic={item.topic}
                                     subscription={item.subscription}
-                                    markAsSuccess={markAsSuccess}
                                     refresh={refresh}
                                 />
                             )}

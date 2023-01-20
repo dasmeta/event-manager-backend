@@ -1,17 +1,18 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { Divider, Popconfirm } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import formatMoney from "@/utils/format-number";
+import { eventSubscriptionApi } from "@/services/api";
 import styles from "@/assets/styles";
 
-export default ({ topic, subscription, type, title, count, markAsSuccess, refresh }) => {
+export default ({ topic, subscription, type, title, count, refresh }) => {
     const [processing, setProcessing] = useState(false);
     const handleMarkAsSuccess = useCallback(() => {
         setProcessing(true);
-        markAsSuccess({
+        eventSubscriptionApi.eventSubscriptionsMarkAsSuccessPost({
             topic,
             subscription,
-            type,
+            type
         }).then(() => {
             setProcessing(false);
             refresh();

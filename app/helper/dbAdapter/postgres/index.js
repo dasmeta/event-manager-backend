@@ -91,25 +91,28 @@ class client {
     }
 
     async getErrorEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .where({
+        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+            qb.where({
                 topic,
                 subscription,
                 isError: true,
                 isPreconditionFail: false,
                 isSuccess: false,
             })
-            .orderBy({ 'createdAt': 'ASC' })
-            .fetchPage({
-                columns: ['eventId'],
-                limit
-            });
+            qb.select({ eventId: 'eventId'})
+            qb.orderBy('created_at', 'ASC')
+        }).fetchPage({
+            limit,
+            withRelated: [],
+        });
 
-        const ids = eventIdList.map(item => item.eventId);
-        return strapi.query('event').model
+        const ids = eventIdList.toJSON().map(item => item.eventId);
+        const result = await strapi.query('event').model
             .where('id', 'in', ids)
-            .orderBy({ 'createdAt': 'ASC' })
+            .orderBy('created_at', 'ASC')
             .fetchAll();
+
+        return result.toJSON();
     }
 
     async getFailEvents(topic, subscription, limit) {
@@ -122,93 +125,98 @@ class client {
                 isSuccess: false
             })
             qb.select({ eventId: 'eventId'})
-            qb.orderBy('created_at', 'asc')
+            qb.orderBy('created_at', 'ASCs')
         }).fetchPage({
             limit,
             withRelated: [],
         });
 
         const ids = eventIdList.toJSON().map(item => item.eventId);
-        console.log(ids);
-        return strapi.query('event').model
+        const result = await strapi.query('event').model
             .where('id', 'in', ids)
-            .orderBy({ 'created_at': 'ASC' })
+            .orderBy('created_at', 'ASC')
             .fetchAll();
+    
+        return result.toJSON();
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .find({
+        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+            qb.where({
                 topic,
                 subscription,
                 isError: false,
                 isPreconditionFail: true,
                 isSuccess: false
             })
-            .sort({ createdAt: 1 })
-            .project({ eventId: 1 })
-            .limit(limit)
-            .toArray();
+            qb.select({ eventId: 'eventId'})
+            qb.orderBy('created_at', 'ASC')
+        }).fetchPage({
+            limit,
+            withRelated: [],
+        });
 
-        const ids = eventIdList.map(item => item.eventId);
-        return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 })
-            .toArray();
+        const ids = eventIdList.toJSON().map(item => item.eventId);
+        const result = await strapi.query('event').model
+            .where('id', 'in', ids)
+            .orderBy('created_at', 'ASC')
+            .fetchAll();
+
+        return result.toJSON();
     }
 
     async getSubscriptionsWithoutEvents(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic,
-                        subscription,
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "event",
-                        localField: "eventId",
-                        foreignField: "_id",
-                        as: "event",
-                    },
-                },
-                {
-                    $match: {
-                        event: [],
-                        topic,
-                        subscription,
-                    },
-                },
-                {
-                    $project: {
-                        _id: 1,
-                    },
-                },
-            ])
-            .toArray();
+        const data = await strapi.query('event-subscription').model
+            .where({
+                topic,
+                subscription
+            })
+            .where('eventId', 'is', null)
+            .fetchAll();
+
+        return data.toJSON();
     }
 
     async getDuplicateSubscriptions(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic,
-                        subscription,
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$eventId",
-                        count: { $sum: 1 },
-                        createdAts: { $addToSet: "$createdAt" },
-                    },
-                },
-                { $match: { count: { $gt: 1 } } },
-            ])
-            .toArray();
+        const knex = strapi.connections.default;
+
+        const result = await knex('event_subscription')
+            .where({
+                topic,
+                subscription
+            })
+            .groupBy('eventId')
+            .select({
+               id: 'eventId',
+               count: knex.raw('COUNT(id)'),
+               createdAts: knex.raw('ARRAY_AGG("created_at")')
+            });
+
+        return result.filter(item => item.count > 1);
+    }
+
+    async removeUnnecessarySubscriptions(topic, subscription) {
+        const list = await this.getSubscriptionsWithoutEvents(topic, subscription);
+        const duplicates = await this.getDuplicateSubscriptions(topic, subscription);
+
+        const knex = strapi.connections.default;
+
+        const ids = list.map(item => item.id);
+        if(ids.length) {
+            await knex('event_subscription')
+                .whereIn('id', ids)
+                .delete();
+        }
+
+        duplicates.forEach(async item => {
+            const eventId = item.id;
+            const createdAts = item.createdAts.sort((a, b) => a.getTime() - b.getTime());
+            createdAts.pop();
+            await knex('event_subscription')
+                .whereIn('created_at', createdAts)
+                .where('eventId', eventId)
+                .delete();
+        });
     }
 
     async getMissingEvents(topic, subscription) {
@@ -241,165 +249,154 @@ class client {
     }
 
     async getExistingEvents(ids) {
-        return strapi.query('event').model
-            .find({ id: ids })
-            .project({ _id: 1 })
-            .toArray();
+        const knex = strapi.connections.default;
+        return knex('event')
+            .select({ id: 'id' })
+            .whereIn('id', ids);
+    }
+
+    async getEventsByIds(ids) {
+        const knex = strapi.connections.default;
+        return knex('event')
+            .whereIn('id', ids)
+            .orderBy('created_at', 'ASC');
     }
 
     async getEventsByTopic(topic, start, limit) {
-        return strapi.query('event').model
-            .find({ topic })
-            .project({ _id: 1 })
-            .skip(start)
-            .limit(limit)
-            .toArray();
+        const knex = strapi.connections.default;
+        return knex('event')
+            .select({ id: 'id' })
+            .where({ topic })
+            .offset(start)
+            .limit(limit);
     }
 
     async getEventsWithSubscription(subscription, eventIds) {
-        return strapi.query('event-subscription').model.distinct("eventId", {
-            subscription,
-            eventId: { $in: eventIds }
-        });
+        const knex = strapi.connections.default;
+        const result = await knex('event_subscription')
+            .distinct("eventId")
+            .where({
+                subscription,
+            })
+            .whereIn("eventId", eventIds);
+        return result.reduce((acc, item) => {
+            acc.push(item.eventId);
+            return acc;
+        }, []);
     }
 
-    async createOrUpdateSubscription(eventId, topic, subscription, data) {
-        return strapi.query('event-subscription').model.update(
-            {
-                eventId,
-                topic,
-                subscription
-            },
-            {
-                "$setOnInsert": {
-                    eventId,
-                    topic,
-                    subscription,
+    async createOrUpdateSubscription(condition, data) {
+        const knex = strapi.connections.default;
+        const row = await knex('event_subscription')
+            .where(condition)
+            .select({ id: 'id' })
+            .first();
+        
+        if(!row) {
+            return knex('event_subscription')
+                .insert({
+                    ...condition,
                     ...data
-                }
-            },
-            {
-                upsert: true
-            }
-        )
+                });
+        }
+
+        return knex('event_subscription')
+            .where({ id: row.id })
+            .update({...data})
     }
 
     async updateSubscriptionByDate(topic, subscription, start, end, data) {
-        return strapi.query('event-subscription').model.updateMany(
-            {
+        const knex = strapi.connections.default;
+        return knex('event_subscription')
+            .where({
                 topic,
-                subscription,
-                createdAt: { $gte: start, $lte: end },
-            },
-            {
-                $set: data,
-            }
-        );
+                subscription
+            })
+            .where('created_at', '>=', start)
+            .where('created_at', '<=', end)
+            .update(data);
     }
 
     async updateSubscriptionByType(topic, subscription, type, data) {
-        return strapi.query('event-subscription').model.updateMany(
-            {
+        const knex = strapi.connections.default;
+        return knex('event_subscription')
+            .where({
                 topic,
                 subscription,
                 isSuccess: false,
                 isError: type === "error",
                 isPreconditionFail: type === "preconditionFail"
-            },
-            {
-                $set: data
-            }
-        );
+            })
+            .update(data);
     }
 
     async updateSubscriptionByEvents(topic, subscription, eventIds, data) {
-        return strapi.query('event-subscription').model.updateMany(
-            {
+        const knex = strapi.connections.default;
+        return knex('event_subscription')
+            .where({
                 topic,
-                subscription,
-                eventId: { $in: eventIds.map(item => ObjectId(item)) }
-            },
-            {
-                $set: data
-            }
-        );
+                subscription
+            })
+            .whereIn('eventId', eventIds)
+            .update(data);
     }
 
     async recordStart(topic, subscription, eventId, traceId) {
-        return strapi.query('event-subscription').model
-            .where({
-                eventId,
-                subscription
-            })
-            .save({
-                eventId,
-                subscription,
-                topic,
-                traceId,
-                isSuccess: false,
-                isError: false,
-                isPreconditionFail: false
-            });
+        return this.createOrUpdateSubscription({
+            subscription,
+            eventId,
+        }, {
+            topic,
+            traceId,
+            isSuccess: false,
+            isError: false,
+            isPreconditionFail: false
+        });
     }
 
     async recordSuccess(topic, subscription, eventId, traceId) {
-        return strapi.query('event-subscription').model
-            .where({
-                eventId,
-                subscription
-            })
-            .save({
-                topic,
-                traceId,
-                isSuccess: true,
-                isError: false,
-                isPreconditionFail: false,
-            }, {
-                patch: true
-            });
+        return this.createOrUpdateSubscription({
+            eventId,
+            subscription
+        }, {
+            topic,
+            traceId,
+            isSuccess: true,
+            isError: false,
+            isPreconditionFail: false
+        })
     }
 
     async recordFailure(topic, subscription, eventId, traceId, error) {
-
-         const errObject = Object.getOwnPropertyNames(error).reduce((acc, key) => {
+        const errObject = Object.getOwnPropertyNames(error).reduce((acc, key) => {
             acc[key] = error[key];
             return acc;
         }, {});
 
-        return strapi.query('event-subscription').model
-            .where({
-                eventId,
-                subscription
-            })
-            .save({
-                topic,
-                traceId,
-                error: errObject,
-                isSuccess: false,
-                isError: true,
-                isPreconditionFail: false,
-            }, {
-                patch: true
-            });
+        return this.createOrUpdateSubscription({
+            eventId,
+            subscription
+        }, {
+            topic,
+            traceId,
+            error: errObject,
+            isSuccess: false,
+            isError: true,
+            isPreconditionFail: false,
+        });
     }
 
     async recordPreconditionFailure(topic, subscription, eventId, traceId) {
-
-        return strapi.query('event-subscription').model
-            .where({
-                eventId,
-                subscription
-            })
-            .save({
-                topic,
-                traceId,
-                error: errObject,
-                isSuccess: false,
-                isError: false,
-                isPreconditionFail: true,
-            }, {
-                patch: true
-            });
+        return this.createOrUpdateSubscription({
+            eventId,
+            subscription
+        }, {
+            topic,
+            traceId,
+            isSuccess: false,
+            isError: false,
+            isPreconditionFail: true,
+        })
     }
 
     async hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts = 5) {
