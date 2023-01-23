@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { DatePicker, Popover, Button } from "antd";
 import { eventSubscriptionApi } from "@/services/api";
+import { IconShieldFail } from "@/assets/icons";
+import styles from "./MarkAsFail.less";
 
 const { RangePicker } = DatePicker;
 
@@ -47,7 +49,9 @@ const MarkAsFail: React.FC<Props> = ({ item, refresh }) => {
                 </div>
             }
         >
-            <Button size="small">Mark As Fail</Button>
+            <Button size="small" icon={<IconShieldFail />}>
+                Mark As Fail
+            </Button>
         </Popover>
     );
 };

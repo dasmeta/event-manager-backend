@@ -16,7 +16,6 @@ import Republish from "../Republish";
 import formatMoney from "@/utils/format-number";
 import translations from "@/assets/translations";
 import { eventApi } from "@/services/api";
-// import styles from "@/assets/styles";
 import { IconCopy, IconLogs, IconFunctions } from "@/assets/icons";
 import styles from "./List.less"
 
@@ -52,7 +51,7 @@ export default React.memo(({
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                <span className={styles.iconsFunctionStyle}><IconFunctions /></span> Function
+                <IconFunctions /> Function
             </Button>
         )
     }
@@ -69,7 +68,7 @@ export default React.memo(({
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                <span className={styles.iconsStyle}><IconLogs /></span> Logs
+                <IconLogs /> Logs
             </Button>
         )
     }
@@ -84,7 +83,7 @@ export default React.memo(({
                         <Paragraph
                             copyable={{
                                 text: topic,
-                                icon: <span className={styles.paragraphIconStyle}><IconCopy /></span>
+                                icon: <IconCopy />
                             }}
                         >
                             {topic} 
@@ -101,17 +100,17 @@ export default React.memo(({
                         <Paragraph
                             copyable={{
                                 text: subscription,
-                                icon: <span className={styles.paragraphIconStyle}><IconCopy /></span>
+                                icon: <IconCopy />
                             }}
                         >
                             <span className={styles.textStyle}>
                                 {translations.subscription}{": "}
-                                {subscription}
+                                <span className={styles.subscriptionTextStyle}>{subscription}</span>
                             </span> 
                         </Paragraph>
                     </Col>
                 </Row>
-                <Space size={8} wrap>
+                <Space size={[8, 8]} wrap>
                     <CalculateSingleAction
                         subscription={subscription}
                         topic={topic}
@@ -185,7 +184,6 @@ export default React.memo(({
             //                         type="preconditionFail"
             //                         topic={item.topic}
             //                         subscription={item.subscription}
-            //                         markAsSuccess={markAsSuccess}
             //                         refresh={refresh}
             //                     />
             //                 )}
@@ -196,7 +194,6 @@ export default React.memo(({
             //                         type="fail"
             //                         topic={item.topic}
             //                         subscription={item.subscription}
-            //                         markAsSuccess={markAsSuccess}
             //                         refresh={refresh}
             //                     />
             //                 )}
@@ -242,11 +239,10 @@ export default React.memo(({
             sorter: (a, b) => a.fail - b.fail,
             render: (fail, item) => (
                 <Fail
-                    count={item.fail}
+                    count={isFail(item) ? item.fail : 0}
                     type="fail"
                     topic={item.topic}
                     subscription={item.subscription}
-                    markAsSuccess={markAsSuccess}
                     refresh={refresh}
                 />
             )
@@ -261,7 +257,6 @@ export default React.memo(({
                     type="preconditionFail"
                     topic={item.topic}
                     subscription={item.subscription}
-                    markAsSuccess={markAsSuccess}
                     refresh={refresh}
                 />
             )
@@ -271,10 +266,7 @@ export default React.memo(({
             title: (translations.missing),
             dataIndex: "missing",
             render: (missing, item) => (
-                <Missing
-                    item={item}
-                    refresh={refresh}
-                />
+                <Missing item={item} refresh={refresh} />
             )
         },
         {
@@ -290,11 +282,21 @@ export default React.memo(({
             key: "success",
             title: (translations.success),
             dataIndex: "success",
+            render: (success, item) => (
+                <span className={styles.success}>
+                    {formatMoney(item.success)}
+                </span>
+            )
         },
         {
             key: "total",
             title: (translations.total),
             dataIndex: "total",
+            render: (total, item) => (
+                <span className={styles.total}>
+                    {formatMoney(item.total)}
+                </span>
+            )
         },
         // {
         //     key: "action",
@@ -429,6 +431,8 @@ export default React.memo(({
                 columns={columns}
                 dataSource={list.filter(filter)}
                 responsive
+                pagination={{ position: ["bottomCenter"] }}
+                scroll={{ x: 1300 }}
             />
 
             <ErrorModal

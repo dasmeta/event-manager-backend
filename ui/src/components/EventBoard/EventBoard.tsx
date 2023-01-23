@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Layout, Input, Row, Col, Space } from 'antd';
+import { Layout, Input, Row, Col } from 'antd';
 import Actions from '../Actions';
 import EventList from '../List';
 import Links from '../Links';
 import { eventStatsApi } from '@/services/api';
+import { IconSearch } from "@/assets/icons";
 import styles from "./EventBoard.less";
+
+const { Search } = Input;
 
 const EventBoard: React.FC<any> = (options) => {
 
@@ -27,7 +30,15 @@ const EventBoard: React.FC<any> = (options) => {
   }, [searchValue]);
 
   const renderSearch = () => (
-    <Input.Search size="large" allowClear={true} onChange={e => setSearchValue(e.target.value)} value={searchValue} />
+    <Search
+      size="large"
+      allowClear={false}
+      onChange={e => setSearchValue(e.target.value)}
+      value={searchValue}
+      placeholder="Search"
+      // prefix={<IconSearch />}
+      // suffix={loading}
+    />
   );
 
   useEffect(() => {
@@ -55,22 +66,28 @@ const EventBoard: React.FC<any> = (options) => {
     />
   );
 
-  const colProps = {
+  const colSearchProps = {
     xs: 24,
     sm: 12,
-    md: 12,
+    md: 8,
     lg: 12,
     xl: 12,
+    xxl: 8,
+  }
+
+  const colActionsButtonProps = {
+    ...colSearchProps,
+    md: 18,
     xxl: 12,
   }
 
   return (
     <Layout>
       <Row className={styles.searchAndActions} gutter={[8, 16]}>
-        <Col {...colProps}>
+        <Col {...colSearchProps}>
           {renderSearch()}
         </Col>
-        <Col {...colProps} className={styles.actionsButton}>
+        <Col {...colActionsButtonProps} className={styles.actionsButton}>
           {renderLinks()}
         </Col>
       </Row>

@@ -1,7 +1,7 @@
 import { Space, Button } from "antd";
-import { UnorderedListOutlined, CoffeeOutlined, LineChartOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
 import CalculateAction from "../CalculateAction";
+import { IconBoard, IconFunctions, IconLogs } from "@/assets/icons";
 
 export default ({
     options,
@@ -10,24 +10,26 @@ export default ({
     return (
         <Space size="small" wrap>
             <CalculateAction refresh={refresh} />
-            <Button href={options.googleBoard} target="_blank" rel="noopener noreferrer">
-                <LineChartOutlined /> {translations.board}
+            <Button href={options.googleBoard} target="_blank" rel="noopener noreferrer" icon={<IconBoard />}>
+                {translations.board}
             </Button>
             <Button
+                icon={<IconFunctions />}
                 href={`https://console.cloud.google.com/functions/list?project=${options.googleProjectId}`}
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                <CoffeeOutlined /> {translations.functions}
+                {translations.functions}
             </Button>
             <Button
+                icon={<IconLogs />}
                 href={`https://console.cloud.google.com/logs/viewer?project=${
                     options.googleProjectId
                 }&minLogLevel=0&expandAll=false&resource=cloud_function`}
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                <UnorderedListOutlined /> {translations.logs}
+                {translations.logs}
             </Button>
         </Space>
     );

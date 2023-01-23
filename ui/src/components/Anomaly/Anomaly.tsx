@@ -5,7 +5,7 @@ import { isAnomaly } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
 import translations from "@/assets/translations";
 import { eventSubscriptionApi } from "@/services/api";
-import styles from "@/assets/styles";
+import styles from "../style.less";
 
 interface Props {
     item: any;
@@ -33,12 +33,10 @@ const Anomaly: React.FC<Props> = ({ item, refresh }) => {
     return (
         <>
             {processing ? (
-                <a style={styles.error}>
-                    <LoadingOutlined />
-                </a>
+                <LoadingOutlined />
             ) : (
                 <Popconfirm title="Clean Anomaly Subscriptions?" onConfirm={handleCleanAnomaly}>
-                    <a style={styles.error}>{formatMoney(item.subscriptionCount - item.topicCount)}</a>
+                    <span className={styles.title}>{formatMoney(item.subscriptionCount - item.topicCount)}</span>
                 </Popconfirm>
             )}
         </>

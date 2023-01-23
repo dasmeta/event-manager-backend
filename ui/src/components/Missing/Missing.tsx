@@ -5,7 +5,7 @@ import { isMissing } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
 import translations from "@/assets/translations";
 import { eventSubscriptionApi } from "@/services/api";
-import styles from "@/assets/styles";
+import styles from "../style.less";
 
 interface Props {
     item: any;
@@ -40,9 +40,7 @@ const Missing: React.FC<Props> = ({ item, refresh }) => {
     return (
         <>
             {processing ? (
-                <a style={styles.error}>
-                    <LoadingOutlined />
-                </a>
+                <LoadingOutlined />
             ) : (
                 <Popconfirm
                     title={
@@ -70,7 +68,7 @@ const Missing: React.FC<Props> = ({ item, refresh }) => {
                     }
                     onConfirm={handlePopulateMissing}
                 >
-                    <a style={styles.error}>{formatMoney(item.missing)}</a>
+                    <span className={styles.title}>{formatMoney(item.missing)}</span>
                 </Popconfirm>
             )}
         </>
