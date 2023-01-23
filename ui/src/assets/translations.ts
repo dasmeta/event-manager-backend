@@ -26,4 +26,5 @@ export default {
     edit: "Edit",
     save: "Save",
     cancel: "Cancel",
+    total: "Total",
 };

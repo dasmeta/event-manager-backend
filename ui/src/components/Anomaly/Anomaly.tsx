@@ -32,8 +32,6 @@ const Anomaly: React.FC<Props> = ({ item, refresh }) => {
 
     return (
         <>
-            <Divider type="vertical" />
-            {translations.anomaly}:{" "}
             {processing ? (
                 <a style={styles.error}>
                     <LoadingOutlined />

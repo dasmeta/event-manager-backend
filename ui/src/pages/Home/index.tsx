@@ -12,7 +12,9 @@ const defaultOptions = {
 
 const HomePage: React.FC = () => {
   return (
-    <PageContainer header={{ title: 'Event Manager' }}>
+    <PageContainer
+      header={{ title: <span className={styles.titleStyle}>{'Events'}</span> }}
+    >
       <div className={styles.container}>
         <EventBoard options={defaultOptions} />
       </div>

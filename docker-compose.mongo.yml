@@ -6,6 +6,7 @@ services:
       DATABASE_URL: mongodb://strapi:strapi@mongo/strapi?authSource=admin
       AUTHENTICATION_DATABASE: admin
       SERVE_ADMIN_PANEL: 'true'
+      NODE_ENV: production
       # MQ_CLIENT_NAME: Kafka
       # KAFKA_BROKERS: '192.168.88.93:29092'
     depends_on:

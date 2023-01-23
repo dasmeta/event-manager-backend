@@ -39,8 +39,6 @@ const Missing: React.FC<Props> = ({ item, refresh }) => {
 
     return (
         <>
-            <Divider type="vertical" />
-            {translations.missing}:{" "}
             {processing ? (
                 <a style={styles.error}>
                     <LoadingOutlined />

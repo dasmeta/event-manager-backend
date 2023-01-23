@@ -41,13 +41,13 @@ const MarkAsFail: React.FC<Props> = ({ item, refresh }) => {
                     <br />
                     <br />
 
-                    <Button type="primary" loading={processing} onClick={handleMarkAsFail} disabled={!range.length}>
+                    <Button size="small" type="primary" loading={processing} onClick={handleMarkAsFail} disabled={!range.length}>
                         Process
                     </Button>
                 </div>
             }
         >
-            <a>Mark As Fail</a>
+            <Button size="small">Mark As Fail</Button>
         </Popover>
     );
 };

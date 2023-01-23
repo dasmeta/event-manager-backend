@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Layout, Input, Row, Col } from 'antd';
+import { Layout, Input, Row, Col, Space } from 'antd';
 import Actions from '../Actions';
 import EventList from '../List';
 import Links from '../Links';
 import { eventStatsApi } from '@/services/api';
+import styles from "./EventBoard.less";
 
 const EventBoard: React.FC<any> = (options) => {
 
@@ -54,20 +55,33 @@ const EventBoard: React.FC<any> = (options) => {
     />
   );
 
+  const colProps = {
+    xs: 24,
+    sm: 12,
+    md: 12,
+    lg: 12,
+    xl: 12,
+    xxl: 12,
+  }
+
   return (
     <Layout>
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          {renderActions()}
+      <Row className={styles.searchAndActions} gutter={[8, 16]}>
+        <Col {...colProps}>
+          {renderSearch()}
         </Col>
-        <Col span={24}>
-        {renderSearch()}
-        </Col>
-        <Col span={24}>
+        <Col {...colProps} className={styles.actionsButton}>
           {renderLinks()}
         </Col>
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        {/* <Col span={12}>
+          {renderActions()}
+        </Col> */}
+
         <Col span={24}>
-        {renderList()}
+          {renderList()}
         </Col>
       </Row>
     </Layout>

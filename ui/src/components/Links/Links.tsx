@@ -1,25 +1,26 @@
-import { Divider } from "antd";
+import { Space, Button } from "antd";
 import { UnorderedListOutlined, CoffeeOutlined, LineChartOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
+import CalculateAction from "../CalculateAction";
 
 export default ({
     options,
+    refresh
 }) => {
     return (
-        <>
-            <a href={options.googleBoard} target="_blank" rel="noopener noreferrer">
+        <Space size="small" wrap>
+            <CalculateAction refresh={refresh} />
+            <Button href={options.googleBoard} target="_blank" rel="noopener noreferrer">
                 <LineChartOutlined /> {translations.board}
-            </a>
-            <Divider type="vertical" />
-            <a
+            </Button>
+            <Button
                 href={`https://console.cloud.google.com/functions/list?project=${options.googleProjectId}`}
                 target="_blank"
                 rel="noopener noreferrer"
             >
                 <CoffeeOutlined /> {translations.functions}
-            </a>
-            <Divider type="vertical" />
-            <a
+            </Button>
+            <Button
                 href={`https://console.cloud.google.com/logs/viewer?project=${
                     options.googleProjectId
                 }&minLogLevel=0&expandAll=false&resource=cloud_function`}
@@ -27,7 +28,7 @@ export default ({
                 rel="noopener noreferrer"
             >
                 <UnorderedListOutlined /> {translations.logs}
-            </a>
-        </>
+            </Button>
+        </Space>
     );
 }

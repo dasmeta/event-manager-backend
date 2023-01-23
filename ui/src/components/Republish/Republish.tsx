@@ -48,17 +48,17 @@ const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, t
                     <br />
                     <br />
 
-                    <Button type="primary" onClick={handleRepublish}>
+                    <Button size="small" type="primary" onClick={handleRepublish}>
                         Process
                     </Button>
                 </div>
             }
         >
-            <a onClick={() => setVisible(!visible)}>
+            <Button size="small" onClick={() => setVisible(!visible)}>
                 {processing ? <LoadingOutlined /> : <RedoOutlined />}
                 {" "}
                 {buttonText}
-            </a>
+            </Button>
         </Popover>
     );
 };

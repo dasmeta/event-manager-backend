@@ -21,8 +21,6 @@ export default ({ topic, subscription, type, title, count, refresh }) => {
 
     return (
         <>
-            <Divider type="vertical" />
-            {title}:{" "}
             {processing ? (
                 <a style={styles.error}>
                     <LoadingOutlined />

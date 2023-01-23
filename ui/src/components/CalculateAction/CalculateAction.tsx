@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Button } from "antd";
 import { CalculatorOutlined } from "@ant-design/icons";
+// import IconCalculate from "./images/icons/IconCalculate.svg";
 import translations from "@/assets/translations";
 import { eventStatsApi } from "@/services/api";
 
