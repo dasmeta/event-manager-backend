@@ -5,7 +5,7 @@ import formatMoney from "@/utils/format-number";
 import { eventSubscriptionApi } from "@/services/api";
 import styles from "@/assets/styles";
 
-export default ({ topic, subscription, type, title, count, refresh }) => {
+export default ({ topic, subscription, type, count, refresh }) => {
     const [processing, setProcessing] = useState(false);
     const handleMarkAsSuccess = useCallback(() => {
         setProcessing(true);
@@ -21,8 +21,6 @@ export default ({ topic, subscription, type, title, count, refresh }) => {
 
     return (
         <>
-            <Divider type="vertical" />
-            {title}:{" "}
             {processing ? (
                 <a style={styles.error}>
                     <LoadingOutlined />

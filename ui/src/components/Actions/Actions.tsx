@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Badge, Radio } from "antd";
-import CalculateAction from "../CalculateAction";
+// import CalculateAction from "../CalculateAction";
 import translations from "@/assets/translations";
 import { isError, isFail, isPreconditionFail, isMissing, isAnomaly, isSuccess } from "@/utils/checker";
 import styles from "./Actions.less";
@@ -13,12 +13,12 @@ interface Props {
 const Actions: React.FC<any> = ({
     filterKey,
     setFilterKey,
-    refresh,
+    // refresh,
     list
 }) => {
     return (
         <>
-            <CalculateAction refresh={refresh} />{" "}
+            {/* <CalculateAction refresh={refresh} />{" "} */}
             <Radio.Group value={filterKey} onChange={e => setFilterKey(e.target.value)}>
                 <Radio.Button value="error">
                     {translations.error} <Badge count={list.filter(isError).length} />

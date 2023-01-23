@@ -18,6 +18,7 @@ export default defineConfig({
   locale: {
     default: 'en-US'
   },
-  scripts: ['/globals.js']
+  scripts: ['/globals.js'],
+  styles: ['/main.css']
 });
 

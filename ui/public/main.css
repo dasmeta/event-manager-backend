@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary-color: hsl(227, 96%, 41%);
+    --secondary-color: hsl(0, 0%, 59%);
+    --title-color: var(--primary-color);
+    --success-color: hsl(143, 60%, 53%);
+    --error-color: hsl(0, 100%, 67%);
+    --total-color: var(--primary-color);
+    --anomaly-color: hsl(208, 100%, 66%);
+    --border-radius-base: 8px;
+    --box-shadow-base: 0px 2px 1px hsla(0, 0%, 0%, 0.06);
+    --background-color: hsl(0, 0%, 95%);
+    --background-light-10: hsl(240, 19%, 93%);
+    --background-light-20: hsl(0, 0%, 100%);
+    --background-light-30: hsl(240, 33%, 98%);
+    --background-light-50: hsl(240, 14%, 99%);
+    --background-light-100: hsl(0, 0%, 100%);
+}
+
+*,
+*::after,
+*::before {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+}
+

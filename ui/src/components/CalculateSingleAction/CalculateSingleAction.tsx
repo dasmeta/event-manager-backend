@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
-import { CalculatorOutlined, LoadingOutlined } from "@ant-design/icons"
+import React, { useCallback, useState } from "react";
+import { Button } from "antd";
 import translations from "@/assets/translations";
 import { eventStatsApi } from "@/services/api";
+import { IconCalculate } from "@/assets/icons";
 
 interface Props {
     refresh: () => {};
@@ -10,25 +11,22 @@ interface Props {
 }
 
 const CalculateSingleAction: React.FC<Props> = ({ refresh, topic, subscription }) => {
-    const [calculating, setCalculating] = useState(false);
+    // const [calculating, setCalculating] = useState(false);
     const handleCalculateStats = useCallback(async () => {
-        setCalculating(true);
+        // setCalculating(true);
         eventStatsApi.eventStatsCalculateSinglePost({
             topic,
             subscription
         })
-        setCalculating(false);
+        // setCalculating(false);
         await refresh();
     }, [topic, subscription]);
 
     return (
-        <>
-            <a onClick={handleCalculateStats}>
-                {calculating ? <LoadingOutlined /> : <CalculatorOutlined />}
-                {" "}
-                {translations.calculate}
-            </a>
-        </>
+        <Button size="small" onClick={handleCalculateStats}>
+            <IconCalculate />
+            {translations.calculate}
+        </Button>
     );
 };
 
