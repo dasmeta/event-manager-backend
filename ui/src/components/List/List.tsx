@@ -1,8 +1,8 @@
-import React, { useRef } from "react";
-import { Col, Divider, List, Row, Space, Typography, Table, Button, Pagination } from "antd";
-import { CoffeeOutlined, UnorderedListOutlined } from "@ant-design/icons"
+import React, { createRef, useRef, useState } from "react";
+import { Col, Divider, List, Row, Space, Typography, Table, Button, Pagination, Card } from "antd";
+// import { CoffeeOutlined, UnorderedListOutlined } from "@ant-design/icons"
 import { isError, isFail, isPreconditionFail, isMissing, isAnomaly, isSuccess } from "@/utils/checker";
-import ErrorModal from "../ErrorModal";
+import ErrorCard from '../ErrorCard/index';
 import EventModal from "../EventModal";
 import ItemStatusTags from "../ItemStatusTags";
 import CalculateSingleAction from "../CalculateSingleAction";
@@ -30,15 +30,15 @@ export default React.memo(({
     updateEvent
 }) => {
 
-    const errorModal = useRef<any>(null);
+    const errorCard = useRef<any>(null);
     const eventModal = useRef<any>(null);
 
     const handleShowErrors = ({ topic, subscription }) => {
-        errorModal.current.open(topic, subscription);
+        errorCard?.current?.show(topic, subscription);
     };
 
     const handleShowEvent = (eventId, { topic, subscription }) => {
-        eventModal.current.open(eventId, topic, subscription);
+        eventModal?.current?.open(eventId, topic, subscription);
     };
 
     const renderFunctionButton = (item) => {
@@ -115,30 +115,36 @@ export default React.memo(({
                         subscription={subscription}
                         topic={topic}
                         refresh={refresh} />
-                    <Republish
-                        title="Republish fails for this subscription?"
-                        subscription={subscription}
-                        topic={topic}
-                        republish={(data) => eventApi.eventsRepublishFailPost(data)}
-                        refresh={refresh}
-                        buttonText={translations.republishFail}
-                    />
-                    <Republish
-                        title="Republish errors for this subscription?"
-                        subscription={subscription}
-                        topic={topic}
-                        republish={(data) => eventApi.eventsRepublishErrorPost(data)}
-                        refresh={refresh}
-                        buttonText={translations.republishError}
-                    />
-                    <Republish
-                        title="Republish precondition fails for this subscription?"
-                        subscription={subscription}
-                        topic={topic}
-                        republish={(data) => eventApi.eventsRepublishPreconditionFailPost(data)}
-                        refresh={refresh}
-                        buttonText={translations.republishPreconditionFail}
-                    />
+                    {isFail(item) && (
+                        <Republish
+                            title="Republish fails for this subscription?"
+                            subscription={subscription}
+                            topic={topic}
+                            republish={(data) => eventApi.eventsRepublishFailPost(data)}
+                            refresh={refresh}
+                            buttonText={translations.republishFail}
+                        />
+                    )}
+                    {isError(item) && (
+                        <Republish
+                            title="Republish errors for this subscription?"
+                            subscription={subscription}
+                            topic={topic}
+                            republish={(data) => eventApi.eventsRepublishErrorPost(data)}
+                            refresh={refresh}
+                            buttonText={translations.republishError}
+                        />
+                    )}
+                    {isPreconditionFail(item) && (
+                        <Republish
+                            title="Republish precondition fails for this subscription?"
+                            subscription={subscription}
+                            topic={topic}
+                            republish={(data) => eventApi.eventsRepublishPreconditionFailPost(data)}
+                            refresh={refresh}
+                            buttonText={translations.republishPreconditionFail}
+                        />
+                    )}
                     <CleanAnomalyAction item={item} refresh={refresh} />
                     <FixMissingAction item={item} refresh={refresh} />
                     {renderFunctionButton(item)}
@@ -146,73 +152,14 @@ export default React.memo(({
                     <MarkAsFail item={item} refresh={refresh} />
                 </Space>
             </>
-            
-
-            // <List.Item.Meta
-            //     key={`${name}-${item._id}`}
-            //     description={
-            //         <>
-            //             <ItemStatusTags item={item} />
-            //             <Row gutter={8}>
-            //                 <Col md={6}>
-            //                     <Paragraph copyable={{ text: item.topic }}>
-            //                         <small>{translations.topic}</small> {item.topic}
-            //                     </Paragraph>
-            //                 </Col>
-            //                 <Col md={18}>
-            //                     <Paragraph copyable={{ text: item.subscription }}>
-            //                         <small>{translations.subscription}</small> {item.subscription}
-            //                     </Paragraph>
-            //                 </Col>
-            //             </Row>
-
-            //             <div>
-                            
-            //                 {isError(item) && (
-            //                     <>
-            //                         <Divider type="vertical" />
-            //                         {translations.error}:{" "}
-            //                         <a style={styles.error} onClick={() => handleShowErrors(item)}>
-            //                             {formatMoney(item.error)}
-            //                         </a>
-            //                     </>
-            //                 )}
-            //                 {isPreconditionFail(item) && (
-            //                     <Fail
-            //                         count={item.preconditionFail}
-            //                         // title={translations.preconditionFail}
-            //                         type="preconditionFail"
-            //                         topic={item.topic}
-            //                         subscription={item.subscription}
-            //                         refresh={refresh}
-            //                     />
-            //                 )}
-            //                 {isFail(item) && (
-            //                     <Fail
-            //                         count={item.fail}
-            //                         // title={translations.fail}
-            //                         type="fail"
-            //                         topic={item.topic}
-            //                         subscription={item.subscription}
-            //                         refresh={refresh}
-            //                     />
-            //                 )}
-            //                 <Missing
-            //                     item={item}
-            //                     refresh={refresh}
-            //                 />
-            //                 <Anomaly item={item} refresh={refresh} />
-            //             </div>
-            //             <div>
-            //                 {translations.topic}: {formatMoney(item.topicCount)}
-            //                 <Divider type="vertical" />
-            //                 {translations.subscription}: {formatMoney(item.subscriptionCount)}
-            //             </div>
-            //         </>
-            //     }
-            // />
         );
     };
+
+    const renderExpandedContent = () => {
+        return (
+            <ErrorCard ref={errorCard} onShowEvent={handleShowEvent} refresh={refresh} />
+        )
+    }
 
     const columns = [
         {
@@ -221,6 +168,7 @@ export default React.memo(({
             dataIndex: "topic",
             render: (topic, item) => renderItem(item, "topic"),
         },
+        Table.EXPAND_COLUMN,
         {
             key: "error",
             title: (translations.error),
@@ -298,100 +246,8 @@ export default React.memo(({
                 </span>
             )
         },
-        // {
-        //     key: "action",
-        //     type: "action",
-        //     width: 180,
-        //     render: (action, item) => {
-
-        //         const {topic, subscription} = item;
-
-        //         return (
-        //             <div key={`action-${item._id}`}>
-        //                 <div>
-        //                     <CalculateSingleAction
-        //                         subscription={subscription}
-        //                         topic={topic}
-        //                         refresh={refresh} />
-        //                 </div>
-
-        //                 <div>
-        //                     <Republish
-        //                         title="Republish fails for this subscription?"
-        //                         subscription={subscription}
-        //                         topic={topic}
-        //                         republish={(data) => eventApi.eventsRepublishFailPost(data)}
-        //                         refresh={refresh}
-        //                         buttonText={translations.republishFail}
-        //                     />
-        //                 </div>
-
-        //                 <div>
-        //                     <Republish
-        //                         title="Republish errors for this subscription?"
-        //                         subscription={subscription}
-        //                         topic={topic}
-        //                         republish={(data) => eventApi.eventsRepublishErrorPost(data)}
-        //                         refresh={refresh}
-        //                         buttonText={translations.republishError}
-        //                     />
-        //                 </div>
-
-        //                 <div>
-        //                     <Republish
-        //                         title="Republish precondition fails for this subscription?"
-        //                         subscription={subscription}
-        //                         topic={topic}
-        //                         republish={(data) => eventApi.eventsRepublishPreconditionFailPost(data)}
-        //                         refresh={refresh}
-        //                         buttonText={translations.republishPreconditionFail}
-        //                     />
-        //                 </div>
-
-        //                 <div>
-        //                     <CleanAnomalyAction item={item} refresh={refresh} />
-        //                 </div>
-
-        //                 <div>
-        //                     <FixMissingAction item={item} refresh={refresh} />
-        //                 </div>
-
-        //                 <div>
-        //                     <a
-        //                         href={`https://console.cloud.google.com/functions/details/${options.googleZone}/${
-        //                             item.subscription
-        //                         }?project=${options.googleProjectId}`}
-        //                         target="_blank"
-        //                         rel="noopener noreferrer"
-        //                     >
-        //                         <CoffeeOutlined /> Function
-        //                     </a>
-        //                 </div>
-
-        //                 <div>
-        //                     <a
-        //                         href={`https://console.cloud.google.com/logs/viewer?project=${
-        //                             options.googleProjectId
-        //                         }&minLogLevel=0&expandAll=false&resource=cloud_function%2Ffunction_name%2F${
-        //                             item.subscription
-        //                         }`}
-        //                         target="_blank"
-        //                         rel="noopener noreferrer"
-        //                     >
-        //                         <UnorderedListOutlined /> Logs
-        //                     </a>
-        //                 </div>
-        //                 <div>
-        //                     <MarkAsFail item={item} refresh={refresh} />
-        //                 </div>
-        //             </div>
-        //         );
-        //     },
-        // },
     ];
 
-    
-    
     const filter = (item: { topic: any; subscription: any; }) => {
         const { topic, subscription } = item;
 
@@ -425,21 +281,26 @@ export default React.memo(({
     return (
         <div className={styles.dataContainer}>
             <Table
-                rowKey="_id"
+                rowKey={(record) => record.id}
                 rowClassName="no-hover-row"
                 loading={loading}
                 columns={columns}
                 dataSource={list.filter(filter)}
-                responsive
                 pagination={{ position: ["bottomCenter"] }}
                 scroll={{ x: 1300 }}
+                expandable={{
+                    expandedRowRender: (record, index, indent, expanded) => renderExpandedContent(),
+                    rowExpandable: (record) => record.error.length > 1 ?? null,
+                    // expandIcon: ({ expanded, onExpand, record }) =>
+                    //     expanded ? (
+                    //         <a className={styles.error} onClick={(e) => {onExpand(record, e)}}>{record.error}</a>
+                    //     ) : (
+                    //         <a className={styles.error} onClick={(e) => onExpand(record, e)}>{record.error}</a>
+                    //     )
+                    // onExpandedRowsChange: () => renderExpandedContent()
+                }}
             />
 
-            <ErrorModal
-                ref={errorModal}
-                onShowEvent={handleShowEvent}
-                refresh={refresh}
-            />
             <EventModal
                 ref={eventModal}
                 updateEvent={updateEvent}

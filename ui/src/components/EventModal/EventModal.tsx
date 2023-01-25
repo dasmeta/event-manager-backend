@@ -4,6 +4,8 @@ import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import ErrorActions from "../ErrorActions";
 import translations from "@/assets/translations";
 import { eventApi } from "@/services/api";
+import { IconCopy } from '@/assets/icons';
+import styles from "./EventModal.less";
 
 const { Paragraph } = Typography;
 
@@ -72,14 +74,35 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
     }, []);
 
     return (
-        <Modal visible={visible} onCancel={close} onOk={close} title={eventId} width={window.innerWidth * 0.7}>
-            <div style={{ display: "flex" }}>
-                <div style={{ flex: "auto" }}>
-                    <Paragraph copyable={{ text: JSON.stringify(event.data || {}, null, 2) }}>Copy Event Data</Paragraph>
-                    <Paragraph copyable={{ text: topic }}> topic: {topic}</Paragraph>
-                    <Paragraph copyable={{ text: subscription }}> subscription: {subscription}</Paragraph>
+        <Modal open={visible} onCancel={close} onOk={close} title={eventId} width={window.innerWidth * 0.7}>
+            <div className={styles.eventModalHeader}>
+                <div className={styles.eventModalParagraph}>
+                    <Paragraph
+                        copyable={{
+                            icon: <IconCopy />,
+                            text: JSON.stringify(event?.data || {}, null, 2)
+                        }}
+                    >
+                        Copy Event Data
+                    </Paragraph>
+                    <Paragraph
+                        copyable={{
+                            icon: <IconCopy />,
+                            text: topic
+                        }}
+                    >
+                        topic: {topic}
+                    </Paragraph>
+                    <Paragraph
+                        copyable={{
+                            icon: <IconCopy />,
+                            text: subscription
+                        }}
+                    >
+                        subscription: {subscription}
+                    </Paragraph>
                 </div>
-                <div style={{ flex: "auto", textAlign: "right" }}>
+                <div className={styles.eventActionTopBtn}>
                     <ErrorActions
                         topic={topic}
                         subscription={subscription}
@@ -90,19 +113,19 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
             </div>
             <Divider />
             <div>
-                <div style={{ flex: "auto", textAlign: "right" }}>
+                <div className={styles.eventActionBtn}>
                     {editMode ? (
                         <>
-                            <a onClick={deActivateEditMode}>
+                            <a className={styles.mt_10} onClick={deActivateEditMode}>
                                 <CloseOutlined /> {translations.cancel}
                             </a>
                             <Divider type="vertical" />
-                            <a onClick={saveEventData}>
+                            <a className={styles.mt_10} onClick={saveEventData}>
                                 <SaveOutlined /> {translations.save}
                             </a>
                         </>
                     ) : (
-                        <a onClick={activateEditMode}>
+                        <a className={styles.mt_10} onClick={activateEditMode}>
                             <EditOutlined /> {translations.edit}
                         </a>
                     )
@@ -110,7 +133,7 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
                 </div>
                 {editMode ?
                     <Input.TextArea rows={15} value={value} onChange={handleChange} /> :
-                    <pre>{JSON.stringify(event, null, 2)}</pre>
+                    <pre className={styles.eventDataContent}>{JSON.stringify(event, null, 2)}</pre>
                 }
             </div>
         </Modal>

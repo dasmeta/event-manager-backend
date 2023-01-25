@@ -7,8 +7,6 @@ import { eventStatsApi } from '@/services/api';
 import { IconSearch } from "@/assets/icons";
 import styles from "./EventBoard.less";
 
-const { Search } = Input;
-
 const EventBoard: React.FC<any> = (options) => {
 
   const [loading, setLoading] = useState(true);
@@ -18,26 +16,34 @@ const EventBoard: React.FC<any> = (options) => {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    eventStatsApi.eventStatsGet(undefined, 'topic:ASC,subscription:DESC').then(({ data }) => {
-      setList(data);
-      setLoading(false);
+    eventStatsApi.eventStatsGet(undefined, 'topic:ASC,subscription:DESC')
+      .then(({ data }) => {
+        setList(data);
     })
+    .finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => { setFilterKey(searchValue); }, 1000);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setFilterKey(searchValue);
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+      setLoading(true);
+    };
   }, [searchValue]);
 
   const renderSearch = () => (
-    <Search
+    <Input
       size="large"
       allowClear={false}
       onChange={e => setSearchValue(e.target.value)}
       value={searchValue}
       placeholder="Search"
-      // prefix={<IconSearch />}
-      // suffix={loading}
+      prefix={<span className={styles.searchIcon}><IconSearch /></span>}
     />
   );
 
@@ -45,7 +51,7 @@ const EventBoard: React.FC<any> = (options) => {
     refresh()
   }, []);
 
-  const renderLinks = () => <Links options={options} />;
+  const renderLinks = () => <Links options={options} refresh={refresh} />;
 
   const renderActions = () => (
     <Actions 
@@ -83,6 +89,12 @@ const EventBoard: React.FC<any> = (options) => {
 
   return (
     <Layout>
+
+      <Row gutter={[12, 12]}>
+        <Col span={24}>
+          {renderActions()}
+        </Col>
+      </Row>
       <Row className={styles.searchAndActions} gutter={[8, 16]}>
         <Col {...colSearchProps}>
           {renderSearch()}
@@ -93,10 +105,6 @@ const EventBoard: React.FC<any> = (options) => {
       </Row>
 
       <Row gutter={[16, 16]}>
-        {/* <Col span={12}>
-          {renderActions()}
-        </Col> */}
-
         <Col span={24}>
           {renderList()}
         </Col>

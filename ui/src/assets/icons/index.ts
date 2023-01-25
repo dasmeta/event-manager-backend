@@ -6,3 +6,5 @@ export { default as IconLogs } from './IconLogs';
 export { default as IconShieldDone } from './IconShieldDone';
 export { default as IconShieldFail } from './IconShieldFail';
 export { default as IconSearch } from './IconSearch';
+export { default as IconArrowMinimise } from './IconArrowMinimise';
+export { default as IconArrowMaximise } from './IconArrowMaximise';

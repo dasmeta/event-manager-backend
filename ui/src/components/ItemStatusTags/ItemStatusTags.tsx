@@ -6,19 +6,19 @@ import styles from "./ItemStatusTags.less";
 const ItemStatusTags = ({ item }: any) => {
     const status = [];
     if (isError(item)) {
-        status.push(<Tag className={styles.borderRadius} color="error">{translations.error}</Tag>);
+        status.push(<Tag key="error" className={styles.borderRadius} color="error">{translations.error}</Tag>);
     }
     if (isFail(item)) {
-        status.push(<Tag className={styles.borderRadius} color="default">{translations.fail}</Tag>);
+        status.push(<Tag key="fail" className={styles.borderRadius} color="default">{translations.fail}</Tag>);
     }
     if (isMissing(item)) {
-        status.push(<Tag className={styles.borderRadius} color="warning">{translations.missing}</Tag>);
+        status.push(<Tag key="missing" className={styles.borderRadius} color="warning">{translations.missing}</Tag>);
     }
     if (isAnomaly(item)) {
-        status.push(<Tag className={styles.borderRadius} color="processing">{translations.anomaly}</Tag>);
+        status.push(<Tag key="anomaly" className={styles.borderRadius} color="processing">{translations.anomaly}</Tag>);
     }
     if (isSuccess(item)) {
-        status.push(<Tag className={styles.borderRadius} color="success">{translations.success}</Tag>);
+        status.push(<Tag key="success" className={styles.borderRadius} color="success">{translations.success}</Tag>);
     }
 
     return status;

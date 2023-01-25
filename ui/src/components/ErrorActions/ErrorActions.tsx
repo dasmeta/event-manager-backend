@@ -1,8 +1,10 @@
 import { useCallback, useState } from "react";
-import { Divider } from "antd";
-import { RedoOutlined, LoadingOutlined, CheckOutlined } from "@ant-design/icons";
+import { Button, Space } from "antd";
+import { RedoOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
 import { eventApi, eventSubscriptionApi } from "@/services/api";
+import { IconShieldDone } from "@/assets/icons";
+import styles from "./ErrorActions.less";
 
 interface Props {
     topic: string;
@@ -37,19 +39,17 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, events, refresh })
     }, [topic, subscription, events]);
 
     return (
-        <>
-            <a onClick={handleRepublish}>
+        <Space size={[8, 8]} wrap>
+            <Button className={styles.btnStyle} size="small" onClick={handleRepublish}>
                 {republishing ? <LoadingOutlined /> : <RedoOutlined />}
                 {" "}
                 {translations.republish}
-            </a>
-            <Divider type="vertical" />
-            <a onClick={handleMarkAsSuccess}>
-                {marking ? <LoadingOutlined /> : <CheckOutlined />}
-                {" "}
+            </Button>
+
+            <Button className={styles.btnStyle} size="small" onClick={handleMarkAsSuccess} icon={<IconShieldDone />}>
                 {translations.markAsSuccess}
-            </a>
-        </>
+            </Button>
+        </Space>
     );
 };
 

@@ -3,10 +3,10 @@
 :root {
     --primary-color: hsl(227, 96%, 41%);
     --secondary-color: hsl(0, 0%, 59%);
-    --title-color: var(--primary-color);
+    --title-color: hsl(227, 96%, 41%);
     --success-color: hsl(143, 60%, 53%);
     --error-color: hsl(0, 100%, 67%);
-    --total-color: var(--primary-color);
+    --total-color: hsl(227, 96%, 41%);
     --anomaly-color: hsl(208, 100%, 66%);
     --border-radius-base: 8px;
     --box-shadow-base: 0px 2px 1px hsla(0, 0%, 0%, 0.06);
@@ -16,6 +16,8 @@
     --background-light-30: hsl(240, 33%, 98%);
     --background-light-50: hsl(240, 14%, 99%);
     --background-light-100: hsl(0, 0%, 100%);
+    --border-color: hsl(0, 0%, 91%);
+    --search-icon-color: hsl(0, 0%, 59%);
 }
 
 *,

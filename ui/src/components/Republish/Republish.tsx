@@ -14,10 +14,10 @@ interface Props {
 const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, title, buttonText }) => {
     const [value, setValue] = useState(null);
     const [processing, setProcessing] = useState(false);
-    const [visible, setVisible] = useState(false);
+    // const [visible, setVisible] = useState(false);
     const handleRepublish = useCallback(() => {
         setProcessing(true);
-        setVisible(false);
+        // setVisible(false);
         const data = {
             topic,
             subscription
@@ -35,7 +35,7 @@ const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, t
         <Popover
             title={title}
             placement="leftBottom"
-            open={visible}
+            // open={visible}
             content={
                 <div>
                     <Input

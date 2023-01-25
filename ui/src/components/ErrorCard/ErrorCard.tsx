@@ -1,81 +1,75 @@
 import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
-import { Divider, Modal, Tag } from "antd";
+import { Divider, Card, Tag, Space } from "antd";
 import omit from "lodash/omit";
 import isEmpty from "lodash/isEmpty";
 import ErrorActions from "../ErrorActions";
 import { eventSubscriptionApi } from "@/services/api";
+import styles from "./EventCard.less";
 
 interface Props {
     onShowEvent: () => {};
     refresh: () => {};
 }
 
-const ErrorModal: React.FC<Props> = forwardRef<any, Props>(({ onShowEvent, refresh }, ref) => {
-    const [visible, setVisible] = useState(false);
+const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ onShowEvent, refresh }, ref) => {
     const [list, setList] = useState<Array<any>>([]);
     const [topic, setTopic] = useState("");
     const [subscription, setSubscription] = useState("");
 
     useImperativeHandle(ref, () => ({
-        open(topic: string, subscription: string) {
+        show(topic: string, subscription: string) {
             setTopic(topic);
             setSubscription(subscription);
-            setVisible(true);
+
             eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
                 setList(data);
             });
         },
     }));
 
-    const close = useCallback(() => {
-        setVisible(false);
-        setList([]);
-    }, []);
-
     return (
-        <Modal open={visible} onCancel={close} onOk={close} title={subscription} width={window.innerWidth * 0.7}>
+        <>
             {list.slice(0, 5).map((item, index) => {
                 const stack = item.error.stack;
                 const error = omit(item.error, ["stack", "message"]);
                 return (
-                    <div key={index}>
-                        <div style={{ display: "flex" }}>
-                            <div style={{ flex: "auto" }}>
+                    <Card
+                        className={styles.eventCard}
+                        key={index}
+                        type="inner"
+                        title={
+                            <Space wrap size={[8, 8]} split={<Divider type="vertical" />}>
                                 <strong>{item.count}</strong>
-                                <Divider type="vertical" /> <span>{item._id}</span>
-                            </div>
-                            <div style={{ flex: "auto", textAlign: "right"}}>
-                                <ErrorActions
-                                    topic={topic}
-                                    subscription={subscription}
-                                    events={item.eventIds}
-                                    refresh={refresh}
-                                />
-                            </div>
-                        </div>
-
-                        <br />
-
+                                <span>{item._id}</span>
+                            </Space>
+                        }
+                        extra={
+                            <ErrorActions
+                                topic={topic}
+                                subscription={subscription}
+                                events={item.eventIds}
+                                refresh={refresh}
+                            />
+                        }
+                    >
                         <div>
                             <pre dangerouslySetInnerHTML={{ __html: stack }} />
                         </div>
 
                         <div>{!isEmpty(error) && <pre>{JSON.stringify(error, null, 2)}</pre>}</div>
 
-                        <div style={{ display: "flex", overflow: "hidden" }}>
+                        <div className={styles.eventTags}>
                             {item.eventIds.slice(0, 20).map(eventId => (
                                 <Tag key={eventId} onClick={() => onShowEvent(eventId, { topic, subscription })}>
                                     {typeof eventId === "string" ? `..${eventId.substr(-4)}` :  eventId}
                                 </Tag>
                             ))}
                         </div>
-
-                        <Divider />
-                    </div>
+                    </Card>
                 );
             })}
-        </Modal>
+        </>
     );
 });
 
-export default ErrorModal;
+export default ErrorCard;
