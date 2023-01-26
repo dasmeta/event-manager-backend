@@ -1,4 +1,25 @@
-.actinTitle {
+.badgeMenu {
+    // customize menu items style
+    :global {
+        .ant-menu-item:not(.ant-menu-item-selected) {
+            .ant-badge-count {
+                background: var(--secondary-color);
+            }
+        }
+        .ant-menu-item:is(.ant-menu-item-selected) {
+            .ant-menu-title-content {
+                color: var(--primary-color);
+            }
+        }
+        .ant-menu-item:is(.ant-menu-item-active):hover {
+            .ant-badge-count {
+                background: var(--primary-color);
+            }
+            .ant-menu-title-content {
+                color: var(--primary-color);
+            }
+        }
+    }
 
     .badgeBgColor {
         :global {
