@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Badge, Radio, Menu } from "antd";
+import { Badge, Menu } from "antd";
 import type { MenuProps } from 'antd';
 import translations from "@/assets/translations";
 import { isError, isFail, isPreconditionFail, isMissing, isAnomaly, isSuccess } from "@/utils/checker";
@@ -20,52 +20,76 @@ const Actions: React.FC<any> = ({
         {
             key: 'error',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.error} <Badge className={styles.badgeBgColor} count={list.filter(isError).length} />
+                <span className={styles.actionTitle}>
+                    {translations.error} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isError).length}
+                        showZero
+                    />
                 </span>
             ),
         },
         {
             key: 'fail',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.fail} <Badge className={styles.badgeBgColor} count={list.filter(isFail).length} />
+                <span className={styles.actionTitle}>
+                    {translations.fail} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isFail).length}
+                        showZero
+                    />
                 </span>
             ),
         },
         {
             key: 'preconditionFail',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.preconditionFail} <Badge className={styles.badgeBgColor} count={list.filter(isPreconditionFail).length} />
+                <span className={styles.actionTitle}>
+                    {translations.preconditionFail} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isPreconditionFail).length}
+                        showZero
+                    />
                 </span>
             ),
         },
         {
             key: 'missing',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.missing} <Badge className={styles.badgeBgColor} count={list.filter(isMissing).length} />
+                <span className={styles.actionTitle}>
+                    {translations.missing} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isMissing).length}
+                        showZero
+                    />
                 </span>
             ),
         },
         {
             key: 'anomaly',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.anomaly} <Badge className={styles.badgeBgColor} count={list.filter(isAnomaly).length} />
+                <span className={styles.actionTitle}>
+                    {translations.anomaly} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isAnomaly).length}
+                        showZero
+                    />
                 </span>
             ),
         },
         {
             key: 'success',
             label: (
-                <span className={styles.actinTitle}>
-                    {translations.success} <Badge className={styles.badgeBgColor} count={list.filter(isSuccess).length} />
+                <span className={styles.actionTitle}>
+                    {translations.success} <Badge
+                        className={styles.badgeBgColor}
+                        count={list.filter(isSuccess).length}
+                        showZero
+                    />
                 </span>
             ),
         },
-      ];      
+    ];      
 
     const [current, setCurrent] = useState('error');
     const onClick: MenuProps['onClick'] = (e) => {
@@ -74,15 +98,13 @@ const Actions: React.FC<any> = ({
     };
 
     return (
-        <>
-            <Menu
-                onClick={onClick}
-                selectedKeys={[current]}
-                mode="horizontal"
-                items={items}
-            />
-        </>
-        
+        <Menu
+            className={styles.badgeMenu}
+            onClick={onClick}
+            selectedKeys={[current]}
+            mode="horizontal"
+            items={items}
+        />
     );
 }
 
