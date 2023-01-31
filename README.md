@@ -39,15 +39,18 @@ PORT=1337
 SERVE_ADMIN_PANEL=
 
 # Database
-DATABASE_HOST=
-DATABASE_PORT=
-DATABASE_NAME=event-manager-backend
-DATABASE_USERNAME=
-DATABASE_PASSWORD=
 
-# Database Security
-AUTHENTICATION_DATABASE=
-DATABASE_SSL=
+# mongo
+DATABASE_CLIENT=mongo
+DATABASE_URL=mongodb://strapi:strapi@mongo/strapi?authSource=admin
+AUTHENTICATION_DATABASE=admin
+
+# postgres
+DATABASE_CLIENT=postgres
+DATABASE_HOST=postgres
+DATABASE_USERNAME=strapi
+DATABASE_PASSWORD=strapi
+DATABASE_NAME=strapi
 
 # JWT settings to validate token
 JWT_SECRET=
@@ -57,6 +60,11 @@ JWT_ALGORITHM="HS256"
 AUTHENTICATION_SERVICE_API_HOST=
 AUTHENTICATION_IS_LIVE_MODE=
 
+# For aws lambda with sns trigger
+MQ_CLIENT_NAME=SNS
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 ```
 - Create and start a container ready to handle connections
 ```shell
