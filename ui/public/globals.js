@@ -1,3 +1,3 @@
 const CONFIG = {
-    BASEPATH: "http://localhost:8037"
+    BASEPATH: window.location.origin
 }
