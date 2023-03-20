@@ -1,6 +1,6 @@
-import React, { createRef, useRef, useState } from "react";
-import { Col, Divider, List, Row, Space, Typography, Table, Button, Pagination, Card } from "antd";
-// import { CoffeeOutlined, UnorderedListOutlined } from "@ant-design/icons"
+import React, { useRef, useState } from "react";
+import { Col, Row, Space, Typography, Table, Button } from "antd";
+import { CaretDownOutlined } from "@ant-design/icons"
 import { isError, isFail, isPreconditionFail, isMissing, isAnomaly, isSuccess } from "@/utils/checker";
 import ErrorCard from '../ErrorCard/index';
 import EventModal from "../EventModal";
@@ -33,8 +33,18 @@ export default React.memo(({
     const errorCard = useRef<any>(null);
     const eventModal = useRef<any>(null);
 
-    const handleShowErrors = ({ topic, subscription }) => {
-        errorCard?.current?.show(topic, subscription);
+    const [expanded, setExpanded] = useState<Array<number>>([]);
+
+    const handleShowErrors = ({ topic, subscription, id }) => {
+        if(expanded.includes(id)) {
+            const newState = expanded.filter(index => id !== index);
+            setExpanded(newState);
+        } else {
+            const newState = [...expanded];
+            newState.push(id);
+            errorCard?.current?.show(topic, subscription);
+            setExpanded(newState);
+        }
     };
 
     const handleShowEvent = (eventId, { topic, subscription }) => {
@@ -155,12 +165,6 @@ export default React.memo(({
         );
     };
 
-    const renderExpandedContent = () => {
-        return (
-            <ErrorCard ref={errorCard} onShowEvent={handleShowEvent} refresh={refresh} />
-        )
-    }
-
     const columns = [
         {
             key: "topic",
@@ -168,7 +172,7 @@ export default React.memo(({
             dataIndex: "topic",
             render: (topic, item) => renderItem(item, "topic"),
         },
-        Table.EXPAND_COLUMN,
+        // Table.EXPAND_COLUMN,
         {
             key: "error",
             title: (translations.error),
@@ -177,6 +181,7 @@ export default React.memo(({
             render: (error, item) => (
                 <a className={styles.error} onClick={() => handleShowErrors(item)}>
                     {formatMoney(item.error)}
+                    {item.error >= 1 && <CaretDownOutlined />}
                 </a>
             )
         },
@@ -282,6 +287,7 @@ export default React.memo(({
         <div className={styles.dataContainer}>
             <Table
                 rowKey={(record) => record.id}
+                expandedRowKeys={expanded}
                 rowClassName="no-hover-row"
                 loading={loading}
                 columns={columns}
@@ -289,15 +295,16 @@ export default React.memo(({
                 pagination={{ position: ["bottomCenter"] }}
                 scroll={{ x: 1300 }}
                 expandable={{
-                    expandedRowRender: (record, index, indent, expanded) => renderExpandedContent(),
-                    rowExpandable: (record) => record.error.length > 1 ?? null,
-                    // expandIcon: ({ expanded, onExpand, record }) =>
-                    //     expanded ? (
-                    //         <a className={styles.error} onClick={(e) => {onExpand(record, e)}}>{record.error}</a>
-                    //     ) : (
-                    //         <a className={styles.error} onClick={(e) => onExpand(record, e)}>{record.error}</a>
-                    //     )
-                    // onExpandedRowsChange: () => renderExpandedContent()
+                    showExpandColumn: false,
+                    expandedRowRender: (record, index, indent, expanded) => (
+                        <ErrorCard 
+                            subscription={record.subscription} 
+                            topic={record.topic}
+                            onShowEvent={handleShowEvent} 
+                            refresh={refresh} 
+                        />
+                    ),
+                    rowExpandable: (record) => record.error >= 1 ?? null,
                 }}
             />
 

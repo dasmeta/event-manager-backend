@@ -1,5 +1,5 @@
-import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
-import { Divider, Card, Tag, Space } from "antd";
+import { forwardRef, useEffect, useState } from "react";
+import { Divider, Card, Tag, Space, Spin} from "antd";
 import omit from "lodash/omit";
 import isEmpty from "lodash/isEmpty";
 import ErrorActions from "../ErrorActions";
@@ -7,28 +7,27 @@ import { eventSubscriptionApi } from "@/services/api";
 import styles from "./EventCard.less";
 
 interface Props {
+    topic: string;
+    subscription: string;
     onShowEvent: () => {};
     refresh: () => {};
 }
 
-const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ onShowEvent, refresh }, ref) => {
+const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic, onShowEvent, refresh }, ref) => {
     const [list, setList] = useState<Array<any>>([]);
-    const [topic, setTopic] = useState("");
-    const [subscription, setSubscription] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    useImperativeHandle(ref, () => ({
-        show(topic: string, subscription: string) {
-            setTopic(topic);
-            setSubscription(subscription);
+    useEffect(() => {
+        setLoading(true);
+        eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
+            setList(data);
+            setLoading(false)
+        });
 
-            eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
-                setList(data);
-            });
-        },
-    }));
+    }, [subscription, topic]);
 
     return (
-        <>
+        <Spin spinning={loading}>
             {list.slice(0, 5).map((item, index) => {
                 const stack = item.error.stack;
                 const error = omit(item.error, ["stack", "message"]);
@@ -68,7 +67,7 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ onShowEvent, refres
                     </Card>
                 );
             })}
-        </>
+        </Spin>
     );
 });
 
