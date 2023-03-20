@@ -4,11 +4,21 @@ services:
     environment:
       DATABASE_CLIENT: mongo
       DATABASE_URL: mongodb://strapi:strapi@mongo/strapi?authSource=admin
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi
+      DATABASE_NAME: strapi
+      DATABASE_HOST: mongo
+      # DATABASE_USERNAME: user
+      # DATABASE_PASSWORD: useruser
+      # DATABASE_NAME: event
+      # DATABASE_HOST: host.docker.internal
       AUTHENTICATION_DATABASE: admin
       SERVE_ADMIN_PANEL: 'true'
       NODE_ENV: production
       # MQ_CLIENT_NAME: Kafka
       # KAFKA_BROKERS: '192.168.88.93:29092'
+    # extra_hosts:
+    #   - 'host.docker.internal:host-gateway'
     depends_on:
       - mongo
 
