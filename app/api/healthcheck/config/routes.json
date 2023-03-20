@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/healthcheck",
+      "handler": "healthcheck.check",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}
