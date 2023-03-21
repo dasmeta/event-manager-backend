@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Button } from "antd";
+import { Button, message } from "antd";
 import translations from "@/assets/translations";
 import { eventStatsApi } from "@/services/api";
 import { IconCalculate } from "@/assets/icons";
@@ -10,13 +10,18 @@ interface Props {
 
 const CalculateAction: React.FC<Props> = ({ refresh }) => {
     const [calculating, setCalculating] = useState<boolean>(false);
-    const handleCalculateStats = useCallback(async () => {
+    const handleCalculateStats = useCallback(() => {
         setCalculating(true);
 
-        eventStatsApi.eventStatsCalculatePost({});
-
-        setCalculating(false);
-        await refresh();
+        eventStatsApi.eventStatsCalculatePost({})
+            .then(() => {
+                refresh();
+                setCalculating(false);
+            })
+            .catch(() => {
+                message.error(translations.somethingWentWrong)
+                setCalculating(false);
+            });
     }, []);
 
     return (
