@@ -27,4 +27,5 @@ export default {
     save: "Save",
     cancel: "Cancel",
     total: "Total",
+    somethingWentWrong: "Something went wrong"
 };
