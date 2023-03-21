@@ -394,6 +394,20 @@ class client {
 
         return !!events.length;
     }
+
+    async getTopicList() {
+        const knex = strapi.connections.default;
+        const list = await knex('event').distinct("topic");
+        return list.map(item => item.topic);
+    }
+
+    async getSubscriptionListByTopic(topic) {
+        const knex = strapi.connections.default;
+        const list = await knex('event_subscription')
+            .where({ topic })
+            .distinct("subscription");
+        return list.map(item => item.subscription);
+    }
 }
 
 module.exports = {
