@@ -437,6 +437,14 @@ class client {
 
         return !!events.length;
     }
+
+    async getTopicList() {
+        return strapi.query('event').model.distinct("topic");
+    }
+
+    async getSubscriptionListByTopic(topic) {
+        return strapi.query('event-subscription').model.distinct("subscription", { topic });
+    }
 }
 
 module.exports = {

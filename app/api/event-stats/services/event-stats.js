@@ -11,6 +11,19 @@ const store = dbClientFactory.createClient();
 module.exports = {
     async calculate() {
 
+        if(!process.env.USE_OLD_CALCULATE) {
+            const topics = await store.getTopicList();
+            const bulk = topics.map(async (topic) => {
+                const subscriptions = await store.getSubscriptionListByTopic(topic);
+                return Promise.all(subscriptions.map(subscription => this.calculateSingle(topic, subscription)));
+            });
+    
+            await Promise.all(bulk);
+
+            return;
+        }
+
+        // TODO for backward compatibility (maybe remove in future)
         const eventData = await store.getGroupedEvents();
         const subscriptionData = await store.getGroupedSubscriptions();
 
