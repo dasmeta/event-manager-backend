@@ -9,22 +9,26 @@ import styles from "./EventCard.less";
 interface Props {
     topic: string;
     subscription: string;
+    expanded: boolean;
     onShowEvent: () => {};
     refresh: () => {};
 }
 
-const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic, onShowEvent, refresh }, ref) => {
+const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic, onShowEvent, refresh, expanded = false }, ref) => {
     const [list, setList] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
-            setList(data);
-            setLoading(false)
-        });
-
-    }, [subscription, topic]);
+        if(expanded) {
+            setLoading(true);
+            eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
+                setList(data);
+                setLoading(false);
+            });
+        } else {
+            setList([]);
+        }
+    }, [subscription, topic, expanded]);
 
     return (
         <Spin spinning={loading}>

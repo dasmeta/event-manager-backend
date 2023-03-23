@@ -6,12 +6,14 @@ import { IconCalculate } from "@/assets/icons";
 
 interface Props {
     refresh: () => {}
+    showLoader: () => {}
 }
 
-const CalculateAction: React.FC<Props> = ({ refresh }) => {
+const CalculateAction: React.FC<Props> = ({ refresh, showLoader }) => {
     const [calculating, setCalculating] = useState<boolean>(false);
     const handleCalculateStats = useCallback(() => {
         setCalculating(true);
+        showLoader();
 
         eventStatsApi.eventStatsCalculatePost({})
             .then(() => {

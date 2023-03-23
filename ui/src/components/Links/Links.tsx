@@ -5,11 +5,12 @@ import { IconBoard, IconFunctions, IconLogs } from "@/assets/icons";
 
 export default ({
     options,
-    refresh
+    refresh,
+    showLoader
 }) => {
     return (
         <Space size="small" wrap>
-            <CalculateAction refresh={refresh} />
+            <CalculateAction refresh={refresh} showLoader={showLoader} />
             <Button href={options.googleBoard} target="_blank" rel="noopener noreferrer" icon={<IconBoard />}>
                 {translations.board}
             </Button>
