@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Col, Row, Space, Typography, Table, Button } from "antd";
 import { CaretDownOutlined } from "@ant-design/icons"
 import { isError, isFail, isPreconditionFail, isMissing, isAnomaly, isSuccess } from "@/utils/checker";
@@ -34,6 +34,10 @@ export default React.memo(({
     const eventModal = useRef<any>(null);
 
     const [expanded, setExpanded] = useState<Array<number>>([]);
+
+    useEffect(() => {
+        setExpanded([]);
+    }, [list])
 
     const handleShowErrors = ({ topic, subscription, id }) => {
         if(expanded.includes(id)) {
@@ -302,6 +306,7 @@ export default React.memo(({
                             topic={record.topic}
                             onShowEvent={handleShowEvent} 
                             refresh={refresh} 
+                            expanded={expanded}
                         />
                     ),
                     rowExpandable: (record) => record.error >= 1 ?? null,

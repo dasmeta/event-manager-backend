@@ -34,7 +34,7 @@ const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, t
     return (
         <Popover
             title={title}
-            placement="leftBottom"
+            placement="top"
             // open={visible}
             content={
                 <div>

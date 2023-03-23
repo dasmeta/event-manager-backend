@@ -25,6 +25,10 @@ const EventBoard: React.FC<any> = (options) => {
     });
   }, []);
 
+  const showLoader = useCallback(() => {
+    setLoading(true);
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -51,7 +55,7 @@ const EventBoard: React.FC<any> = (options) => {
     refresh()
   }, []);
 
-  const renderLinks = () => <Links options={options} refresh={refresh} />;
+  const renderLinks = () => <Links options={options} refresh={refresh} showLoader={showLoader} />;
 
   const renderActions = () => (
     <Actions 
@@ -59,16 +63,6 @@ const EventBoard: React.FC<any> = (options) => {
         setFilterKey={setSearchValue}
         refresh={refresh}
         list={list}
-    />
-  );
-
-  const renderList = () => (
-    <EventList
-        options={options}
-        loading={loading}
-        refresh={refresh}
-        list={list}
-        filterKey={filterKey}
     />
   );
 
@@ -106,7 +100,13 @@ const EventBoard: React.FC<any> = (options) => {
 
       <Row gutter={[16, 16]}>
         <Col span={24}>
-          {renderList()}
+          <EventList
+            options={options}
+            loading={loading}
+            refresh={refresh}
+            list={list}
+            filterKey={filterKey}
+          />
         </Col>
       </Row>
     </Layout>

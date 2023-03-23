@@ -12,13 +12,12 @@ module.exports = {
     async calculate() {
 
         if(!process.env.USE_OLD_CALCULATE) {
-            const topics = await store.getTopicList();
-            const bulk = topics.map(async (topic) => {
-                const subscriptions = await store.getSubscriptionListByTopic(topic);
-                return Promise.all(subscriptions.map(subscription => this.calculateSingle(topic, subscription)));
-            });
-    
-            await Promise.all(bulk);
+
+            const stats = await strapi.query('event-stats').find({});
+
+            await Promise.all(stats.map(item => {
+                return this.calculateSingle(item.topic, item.subscription);
+            }))
 
             return;
         }
@@ -68,7 +67,7 @@ module.exports = {
 
         const subscriptionData = await store.getGroupedSubscriptionsForSingleTopic(topic, subscription);
 
-        const { count, success, error, preconditionFail } = subscriptionData[0];
+        const { count = 0, success = 0, error = 0, preconditionFail = 0 } = subscriptionData[0] || {};
         const missing = Math.max(total - count, 0);
         const fail = count - success - error - preconditionFail;
 
