@@ -16,7 +16,7 @@ const EventBoard: React.FC<any> = (options) => {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    eventStatsApi.eventStatsGet(undefined, 'topic:ASC,subscription:DESC')
+    eventStatsApi.eventStatsGet(Number.MAX_SAFE_INTEGER, 'topic:ASC,subscription:DESC')
       .then(({ data }) => {
         setList(data);
     })
