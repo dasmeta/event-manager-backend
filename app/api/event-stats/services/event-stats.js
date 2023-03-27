@@ -13,12 +13,21 @@ module.exports = {
 
         if(!process.env.USE_OLD_CALCULATE) {
 
-            const stats = await strapi.query('event-stats').find({});
+            const limit = 10;
+            let start = 0;
+            let index = 0;
 
-            await Promise.all(stats.map(item => {
-                return this.calculateSingle(item.topic, item.subscription);
-            }))
+            const count = await strapi.query('event-stats').count();
 
+            while(start <= count) {
+                const stats = await strapi.query('event-stats').find({_limit: 10, _start: start});
+                await Promise.all(stats.map(item => {
+                    strapi.log.debug(`##### - ${++index} - #####`);
+                    strapi.log.debug(`${item.topic} - ${item.subscription}`);
+                    return this.calculateSingle(item.topic, item.subscription);
+                }));
+                start += limit;
+            }
             return;
         }
 
