@@ -43,6 +43,11 @@ SERVE_ADMIN_PANEL=
 # mongo
 DATABASE_CLIENT=mongo
 DATABASE_URL=mongodb://strapi:strapi@mongo/strapi?authSource=admin
+// or
+DATABASE_HOST=strapi
+DATABASE_USERNAME=strapi
+DATABASE_PASSWORD=strapi
+DATABASE_NAME=strapi
 AUTHENTICATION_DATABASE=admin
 
 # postgres
