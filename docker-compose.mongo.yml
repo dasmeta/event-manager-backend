@@ -3,7 +3,7 @@ services:
   strapi:
     environment:
       DATABASE_CLIENT: mongo
-      DATABASE_URL: mongodb://strapi:strapi@mongo/strapi?authSource=admin
+      # DATABASE_URL: mongodb://strapi:strapi@mongo/strapi?authSource=admin
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
       DATABASE_NAME: strapi
