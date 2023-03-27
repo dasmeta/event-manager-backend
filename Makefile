@@ -1,5 +1,5 @@
 start-with-mongo:
-	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.mongo.yml up
+	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.mongo.yml up --scale rabbitmq=0
 	
 start-with-postgres:
 	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.postgres.yml up
