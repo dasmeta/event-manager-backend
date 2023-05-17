@@ -1779,10 +1779,10 @@
   dependencies:
     sift "^13.0.0"
 
-"@dasmeta/event-manager-utils@^0.1.14":
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/@dasmeta/event-manager-utils/-/event-manager-utils-0.1.14.tgz#4195cfc68e06bffac7740c00818d12f3c7b8442d"
-  integrity sha512-2bvMrHG7ugt/1N7ti4XKwimkP+xw5O8QaQiLEOK924DTa+IivBQwmUeQ51zzmlOciNNtXPnblWxuRhkWusIiMg==
+"@dasmeta/event-manager-utils@^0.1.17":
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@dasmeta/event-manager-utils/-/event-manager-utils-0.1.17.tgz#8fd634362307e0084d88a58850f6e3a859d6bb39"
+  integrity sha512-E68AULYnOnKv7255QOxFILYJF7y6IWDaZwmY9Km8oMQkyCMRZWMSxDaQ/JDyFfBFiB8SOexd+Hsupmk61g5Rng==
   dependencies:
     "@aws-sdk/client-sns" "^3.256.0"
     "@aws-sdk/client-sts" "^3.256.0"

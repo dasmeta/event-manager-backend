@@ -14,27 +14,46 @@ module.exports = async (ctx, next) => {
   if (ctx.request && ctx.request.header && ctx.request.header.authorization) {
     try {
       const remoteUser = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx);
+      const isAdmin = remoteUser.isAdmin || false;
 
       const { id, role, guid} = remoteUser;
-      if (id === undefined || guid === undefined) {
+      if (id === undefined /* || guid === undefined */) {
         throw new Error('Invalid token: Token did not contain required fields');
       }
 
-      if (role.type === 'root') {
-        ctx.state.user = remoteUser;
-        return await next();
+      if(role) {
+        if (role.type === 'root') {
+          ctx.state.user = remoteUser;
+          return await next();
+        }
+  
+        if (strapi.config.custom.AUTHENTICATION_IS_LIVE_MODE) {
+          // fetch authenticated user from centralized service.
+          ctx.state.user = (await axios.get(strapi.config.custom.AUTHENTICATION_SERVICE_API_HOST + '/users/me', {
+            headers: {
+              'Authorization': ctx.request.header.authorization
+            }
+          })).data;
+        } {
+          ctx.state.user = remoteUser;
+        }
+      } else {
+        if (isAdmin) {
+          ctx.state.admin = await strapi
+          .query("administrator", "admin")
+          .findOne({ id });
+        } else {
+          ctx.state.user = await strapi
+          .query("user", "users-permissions")
+          .findOne({ id });
+        }
       }
 
-      if (strapi.config.custom.AUTHENTICATION_IS_LIVE_MODE) {
-        // fetch authenticated user from centralized service.
-        ctx.state.user = (await axios.get(strapi.config.custom.AUTHENTICATION_SERVICE_API_HOST + '/users/me', {
-          headers: {
-            'Authorization': ctx.request.header.authorization
-          }
-        })).data;
-      } {
-        ctx.state.user = remoteUser;
-      }
+      // fetch authenticated user
+      ctx.state.user = await strapi.plugins[
+        'users-permissions'
+      ].services.user.fetchAuthenticatedUser(id);
+
     } catch (err) {
       return handleErrors(ctx, err, 'unauthorized');
     }

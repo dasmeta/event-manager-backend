@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Layout, Input, Row, Col } from 'antd';
+import { Layout, Input, Row, Col, message } from 'antd';
 import Actions from '../Actions';
 import EventList from '../List';
 import Links from '../Links';
 import { eventStatsApi } from '@/services/api';
 import { IconSearch } from "@/assets/icons";
+import translations from '@/assets/translations';
 import styles from "./EventBoard.less";
 
 const EventBoard: React.FC<any> = (options) => {
@@ -19,10 +20,13 @@ const EventBoard: React.FC<any> = (options) => {
     eventStatsApi.eventStatsGet(Number.MAX_SAFE_INTEGER, 'topic:ASC,subscription:DESC')
       .then(({ data }) => {
         setList(data);
-    })
-    .finally(() => {
-      setLoading(false);
-    });
+      })
+      .catch(() => {
+        message.error(translations.somethingWentWrong);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const showLoader = useCallback(() => {

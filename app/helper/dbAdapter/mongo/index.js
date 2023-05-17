@@ -12,6 +12,9 @@ class client {
                     },
                 },
                 {
+                    $sort: { updatedAt: -1 }
+                },
+                {
                     $group: {
                         _id: "$error.message",
                         count: {$sum: 1},

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Button } from "antd";
+import { Button, message } from "antd";
 import { DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
 import { eventSubscriptionApi } from "@/services/api";
@@ -21,6 +21,9 @@ const FixMissingAction: React.FC<Props> = ({ item, refresh }) => {
             }).then(() => {
                 setProcessing(false);
                 refresh();
+            })
+            .catch(() => {
+                message.error(translations.somethingWentWrong);
             });
         }
     }, [item]);

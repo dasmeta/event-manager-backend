@@ -1,7 +1,8 @@
 import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
-import { Divider, Modal, Tag } from "antd";
+import { Divider, Modal, Tag, message } from "antd";
 import omit from "lodash/omit";
 import isEmpty from "lodash/isEmpty";
+import translations from "@/assets/translations";
 import ErrorActions from "../ErrorActions";
 import { eventSubscriptionApi } from "@/services/api";
 
@@ -21,9 +22,13 @@ const ErrorModal: React.FC<Props> = forwardRef<any, Props>(({ onShowEvent, refre
             setTopic(topic);
             setSubscription(subscription);
             setVisible(true);
-            eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
+            eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription)
+            .then(({ data }) => {
                 setList(data);
-            });
+            })
+            .catch(() => {
+                message.error(translations.somethingWentWrong);
+            });;
         },
     }));
 

@@ -1,7 +1,8 @@
 import { forwardRef, useEffect, useState } from "react";
-import { Divider, Card, Tag, Space, Spin} from "antd";
+import { Divider, Card, Tag, Space, Spin, message } from "antd";
 import omit from "lodash/omit";
 import isEmpty from "lodash/isEmpty";
+import translations from "@/assets/translations";
 import ErrorActions from "../ErrorActions";
 import { eventSubscriptionApi } from "@/services/api";
 import styles from "./EventCard.less";
@@ -24,6 +25,9 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
             eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
                 setList(data);
                 setLoading(false);
+            })
+            .catch(() => {
+                message.error(translations.somethingWentWrong);
             });
         } else {
             setList([]);
@@ -56,7 +60,7 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
                         }
                     >
                         <div>
-                            <pre dangerouslySetInnerHTML={{ __html: stack }} />
+                            <pre style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: stack }} />
                         </div>
 
                         <div>{!isEmpty(error) && <pre>{JSON.stringify(error, null, 2)}</pre>}</div>

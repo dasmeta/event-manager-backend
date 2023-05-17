@@ -14,6 +14,7 @@ class client {
                 error: knex.raw("error"),
                 eventIds: knex.raw('ARRAY_AGG("eventId")')
             })
+            .orderBy('updated_at', 'DESC')
             .groupByRaw("error->>'message', error");
     }
 
@@ -125,7 +126,7 @@ class client {
                 isSuccess: false
             })
             qb.select({ eventId: 'eventId'})
-            qb.orderBy('created_at', 'ASCs')
+            qb.orderBy('created_at', 'ASC')
         }).fetchPage({
             limit,
             withRelated: [],

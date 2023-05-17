@@ -2,6 +2,10 @@
 
 module.exports = {
 
+  async authenticated(ctx) {
+    ctx.send({});
+  },
+
   async publish(ctx) {
     const {topic, data, dataSource, traceId, entityProps} = ctx.request.body;
     await strapi.services['event'].publish(topic, data, dataSource, traceId, entityProps);

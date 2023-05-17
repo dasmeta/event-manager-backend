@@ -1,7 +1,8 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
-import { Divider, Modal, Typography, Input, message } from "antd";
-import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
+import { Divider, Modal, Typography, Input, Collapse, message } from "antd";
+import { EditOutlined, SaveOutlined, CloseOutlined, CaretRightOutlined } from "@ant-design/icons";
 import ErrorActions from "../ErrorActions";
+import ErrorStackCard from "../ErrorStackCard";
 import translations from "@/assets/translations";
 import { eventApi } from "@/services/api";
 import { IconCopy } from '@/assets/icons';
@@ -26,8 +27,12 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
         if (!eventId) {
             return;
         }
-        eventApi.eventsIdGet(eventId).then(({ data }) => {
+        eventApi.eventsIdGet(eventId)
+        .then(({ data }) => {
             setEvent(data);
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
         });
     }, [eventId]);
 
@@ -50,7 +55,7 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
     const activateEditMode = useCallback(() => {
         setEditMode(true);
         setValue(JSON.stringify(event.data || {}, null, 2));
-    }, []);
+    }, [event]);
 
     const deActivateEditMode = useCallback(() => {
         setEditMode(false);
@@ -101,6 +106,30 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
                     >
                         subscription: {subscription}
                     </Paragraph>
+                    <Collapse
+                        bordered={false}
+                        ghost={true}
+                        // defaultActiveKey={['1']}
+                        expandIcon={({ isActive }) => <CaretRightOutlined className={styles.eventStack} rotate={isActive ? 90 : 0} />}
+                        // style={{ background: token.colorBgContainer }}
+                    >
+                        <Collapse.Panel 
+                            header={
+                                <a className={[styles.mt_10, styles.eventStack].join(', ')} onClick={deActivateEditMode}>
+                                    {translations.errorStack}
+                                </a>
+                            } 
+                            key="1"
+                        >
+                            <ErrorStackCard 
+                                subscription={subscription} 
+                                eventId={eventId}
+                                // onShowEvent={handleShowEvent} 
+                                // expanded={expanded}
+                            />
+                        </Collapse.Panel>
+                    </Collapse>
+                    
                 </div>
                 <div className={styles.eventActionTopBtn}>
                     <ErrorActions
