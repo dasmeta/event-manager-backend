@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Divider, Popconfirm } from "antd";
+import { Popconfirm, message } from "antd";
 import { LoadingOutlined } from "@ant-design/icons"
 import { isAnomaly } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
@@ -23,7 +23,10 @@ const Anomaly: React.FC<Props> = ({ item, refresh }) => {
         }).then(() => {
             setProcessing(false);
             refresh();
-        });
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
+        });;
     }, [item]);
 
     if (!isAnomaly(item)) {

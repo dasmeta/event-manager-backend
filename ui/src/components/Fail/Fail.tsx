@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
-import { Divider, Popconfirm } from "antd";
+import { Popconfirm, message } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import formatMoney from "@/utils/format-number";
 import { eventSubscriptionApi } from "@/services/api";
+import translations from "@/assets/translations";
 import styles from "@/assets/styles";
 
 export default ({ topic, subscription, type, count, refresh }) => {
@@ -16,6 +17,9 @@ export default ({ topic, subscription, type, count, refresh }) => {
         }).then(() => {
             setProcessing(false);
             refresh();
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
         });
     }, [topic, subscription]);
 

@@ -13,6 +13,11 @@ export default defineConfig({
         path: '/',
         component: './Home',
     },
+    {
+      name: 'Event Manager Login',
+      path: '/login',
+      component: './Login',
+  },
   ],
   npmClient: 'yarn',
   locale: {

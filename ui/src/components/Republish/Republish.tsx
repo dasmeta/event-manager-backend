@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
-import { Input, Popover, Button } from "antd";
+import { Input, Popover, Button, message } from "antd";
 import { LoadingOutlined, RedoOutlined } from "@ant-design/icons";
+import translations from "@/assets/translations";
 
 interface Props {
     subscription: string;
@@ -25,9 +26,13 @@ const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, t
         if(value) {
             data.limit = value;
         }
-        republish(data).then(() => {
+        republish(data)
+        .then(() => {
             setProcessing(false);
             refresh();
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
         });
     }, [topic, subscription, value, republish]);
 

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Divider, Popconfirm, Radio } from "antd";
+import { Popconfirm, Radio, message } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { isMissing } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
@@ -30,6 +30,9 @@ const Missing: React.FC<Props> = ({ item, refresh }) => {
         }).then(() => {
             setProcessing(false);
             refresh();
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
         });
     }, [item, as]);
 

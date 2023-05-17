@@ -27,5 +27,12 @@ export default {
     save: "Save",
     cancel: "Cancel",
     total: "Total",
-    somethingWentWrong: "Something went wrong"
+    somethingWentWrong: "Something went wrong",
+    errorStack: "Error Stack",
+    lastUpdated: "Last Updated",
+    username: "Username",
+    password: "Password",
+    submit: "Submit",
+    requiredField: "Required field!",
+    wrongCredentials: "Wrong credentials"
 };

@@ -1,9 +1,8 @@
 import { useState, useCallback } from "react";
-import { DatePicker, Popover, Button } from "antd";
+import { DatePicker, Popover, Button, message } from "antd";
 import { eventSubscriptionApi } from "@/services/api";
+import translations from "@/assets/translations";
 import { IconShieldFail } from "@/assets/icons";
-import styles from "./MarkAsFail.less";
-
 const { RangePicker } = DatePicker;
 
 interface Props {
@@ -24,6 +23,9 @@ const MarkAsFail: React.FC<Props> = ({ item, refresh }) => {
         }).then(() => {
             setProcessing(false);
             refresh();
+        })
+        .catch(() => {
+            message.error(translations.somethingWentWrong);
         });
     }, [item, range]);
 

@@ -2,6 +2,14 @@
   "routes": [
     {
       "method": "GET",
+      "path": "/events/authenticated",
+      "handler": "event.authenticated",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/events",
       "handler": "event.find",
       "config": {
