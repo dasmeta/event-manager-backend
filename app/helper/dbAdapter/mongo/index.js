@@ -258,12 +258,6 @@ class client {
             .sort({ createdAt: 1});
     }
 
-    async getSubscriptionsByIds(ids) {
-        return strapi.query('event-subscription').model
-            .find({ eventId: ids })
-            .sort({ createdAt: 1});
-    }
-
     async getEventsByTopic(topic, start, limit) {
         return strapi.query('event').model
             .find({ topic })
@@ -496,7 +490,7 @@ class client {
             return data.map(item => item._id);
     }
 
-    async archiveData(eventIds) {
+    async archiveData(eventIds = []) {
         const events = await strapi.query('event').model.find({ _id: eventIds });
         const subscriptions = await strapi.query('event-subscription').model.find({ eventId: eventIds });
 
