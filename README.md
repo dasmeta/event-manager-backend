@@ -78,6 +78,13 @@ $ make up-with-postgres
 ```
 - The service will be accessible on http://0.0.0.0:8037
 
+### If data retention following env variables should be defined
+```
+ENABLE_CRON=true
+DATA_RETENTION_DAYS=40 // event that are created more than 40 days ago will be remove, but only those which have 100% success
+DATA_CLEANUP_HOUR=04 // time in a day on which cleanup job will be executed, in UTC and 24 hour format 
+```
+
 ## Troubleshooting & FAQ
 - View service logs
 ```shell

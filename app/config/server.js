@@ -7,4 +7,7 @@ module.exports = ({ env }) => ({
     },
     serveAdminPanel: env.bool('SERVE_ADMIN_PANEL', false)
   },
+  cron: {
+    enabled: env.bool('ENABLE_CRON', false)
+  }
 });

@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "event_subscription_archives",
+  "info": {
+    "name": "Event_subscription_archive",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "topic": {
+      "type": "string"
+    },
+    "subscription": {
+      "type": "string"
+    },
+    "eventId": {
+      "model": "event-archive"
+    },
+    "isError": {
+      "type": "boolean"
+    },
+    "isPreconditionFail": {
+      "type": "boolean"
+    },
+    "isSuccess": {
+      "type": "boolean"
+    },
+    "traceId": {
+      "type": "string"
+    },
+    "error": {
+      "type": "json"
+    }
+  }
+}

@@ -249,6 +249,13 @@ class client {
             .orderBy('created_at', 'ASC');
     }
 
+    async getSubscriptionsByEventIds(ids) {
+        const knex = strapi.connections.default;
+        return knex('event-subscription')
+            .whereIn('eventId', ids)
+            .orderBy('created_at', 'ASC');
+    }
+
     async getEventsByTopic(topic, start, limit) {
         const knex = strapi.connections.default;
         return knex('event')
@@ -408,6 +415,34 @@ class client {
             .where({ topic })
             .distinct("subscription");
         return list.map(item => item.subscription);
+    }
+
+    async getFirstSubscription() {
+        // TODO
+        return false;
+        // const data = await strapi.query('event-subscription').model.find({}).limit(1).sort({ createdAt: 1 });
+        // return data[0];
+    }
+
+    async getEventsToRemove(start, end) {
+        // TODO
+        return [];
+    }
+
+    async createEventsArchive(data = []) {
+        // TODO
+    }
+
+    async createSubscriptionsArchive(data = []) {
+        // TODO
+    }
+
+    async removeEvents(ids) {
+        // TODO
+    }
+
+    async removeSubscriptionsByEventIds(ids) {
+        // TODO
     }
 }
 
