@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "event_archives",
+  "info": {
+    "name": "Event_archive",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "traceId": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "dataSource": {
+      "type": "string"
+    },
+    "entity": {
+      "type": "string"
+    },
+    "entityId": {
+      "type": "string"
+    },
+    "messageId": {
+      "type": "string"
+    },
+    "data": {
+      "type": "json"
+    }
+  }
+}

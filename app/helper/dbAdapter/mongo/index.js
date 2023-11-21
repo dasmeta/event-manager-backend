@@ -448,6 +448,58 @@ class client {
     async getSubscriptionListByTopic(topic) {
         return strapi.query('event-subscription').model.distinct("subscription", { topic });
     }
+
+    async getFirstSubscription() {
+        const data = await strapi.query('event-subscription').model.find({}).limit(1).sort({ createdAt: 1 });
+        return data[0];
+    }
+
+    async getEventsToRemove(start, end) {
+        if(!start || !end) {
+            return [];
+        }
+        const data = await strapi.query('event-subscription').model
+            .aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $lt: new Date(end),
+                            $gte: new Date(start)
+                        }
+                    },
+                },
+                {
+                    $sort: { updatedAt: -1 }
+                },
+                {
+                    $group: {
+                        _id: "$eventId",
+                        total: { $sum: 1 },
+                        succeededCount: {
+                         $sum: { $cond: [{ $eq: ["$isSuccess", true] }, 1, 0] }
+                       }
+                    }
+                },
+                {
+                    $match: {
+                        $expr: { $eq: ["$total", "$succeededCount"] }
+                    }
+                }
+            ]);
+
+            return data.map(item => item._id);
+    }
+
+    async archiveData(eventIds = []) {
+        const events = await strapi.query('event').model.find({ _id: eventIds });
+        const subscriptions = await strapi.query('event-subscription').model.find({ eventId: eventIds });
+
+        await strapi.query('event-archive').model.insertMany(events);
+        await strapi.query('event-subscription-archive').model.insertMany(subscriptions);
+
+        await strapi.query('event').model.deleteMany({ _id: eventIds });
+        await strapi.query('event-subscription').model.deleteMany({ eventId: eventIds });
+    }
 }
 
 module.exports = {

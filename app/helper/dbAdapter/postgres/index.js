@@ -409,6 +409,22 @@ class client {
             .distinct("subscription");
         return list.map(item => item.subscription);
     }
+
+    async getFirstSubscription() {
+        // TODO
+        return false;
+        // const data = await strapi.query('event-subscription').model.find({}).limit(1).sort({ createdAt: 1 });
+        // return data[0];
+    }
+
+    async getEventsToRemove(start, end) {
+        // TODO
+        return [];
+    }
+
+    async archiveData(eventIds = []) {
+        // TODO
+    }
 }
 
 module.exports = {
