@@ -1,24 +1,5 @@
 version: '3'
 services:
   strapi:
-    environment:
-      - PUBSUB_EMULATOR_HOST=pubsub:8681
-      - PUBSUB_PROJECT_ID=my-project-id
-      - GCLOUD_PROJECT=my-project-id
-      - PUBLISH_DEBUG_MODE=1
-      # - MQ_CLIENT_NAME=AMQP
-      # - RABBITMQ_URL=amqp://rabbitmq
     ports:
       - 8037:1337
-  pubsub:
-    image: messagebird/gcloud-pubsub-emulator
-    environment:
-      - PUBSUB_PROJECT1=my-project-id
-      - PUBSUB_EMULATOR_HOST=localhost:8681
-    ports:
-      - 8085:8681
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - 5672:5672
-      - 15672:15672

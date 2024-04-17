@@ -1,0 +1,21 @@
+version: '3'
+services:
+  strapi:
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub:8681
+      - PUBSUB_PROJECT_ID=my-project-id
+      - GCLOUD_PROJECT=my-project-id
+      - PUBLISH_DEBUG_MODE=1
+  pubsub:
+    image: messagebird/gcloud-pubsub-emulator
+    environment:
+      - PUBSUB_PROJECT1=my-project-id
+      - PUBSUB_EMULATOR_HOST=localhost:8681
+    ports:
+      - 8085:8681
+  # pubsub:
+  #   image: google/cloud-sdk:emulators
+  #   command: /bin/bash -c "gcloud beta emulators pubsub start --project=my-project-id --host-port='0.0.0.0:8085'"
+  #   platform: linux/amd64
+  #   ports:
+  #     - 8085:8085
