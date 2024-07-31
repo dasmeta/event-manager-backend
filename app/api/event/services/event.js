@@ -1,6 +1,7 @@
 const uuid = require("uuid/v4");
 const { queue, logger } = require("@dasmeta/event-manager-utils");
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
+const sanitizeKeys = require("../../../utils/sanitize-keys");
 const store = dbClientFactory.createClient();
 
 async function createEvent(topic, traceId, data, dataSource, entityProps) {
@@ -61,9 +62,11 @@ module.exports = {
         logger.debug("BEGIN PUBLISH", { topic, data });
     }
 
+    const sanitizedData = process.env.SANITIZE_KEYS && process.env.SANITIZE_KEYS === 'true' ? sanitizeKeys(data) : data;
+
     traceId = traceId || uuid();
     dataSource = dataSource || process.env.PUBSUB_EVENTS_DATA_SOURCE || null;
-    const eventId = await createEvent(topic, traceId, data, dataSource, entityProps);
+    const eventId = await createEvent(topic, traceId, sanitizedData, dataSource, entityProps);
 
     if (logger.isDebug()) {
         logger.debug("PERSIST EVENT", { topic, eventId, traceId, data, dataSource });
