@@ -1,0 +1,13 @@
+version: '3'
+services:
+  strapi:
+    environment:
+      - PUBLISH_DEBUG_MODE=1
+      - MQ_CLIENT_NAME=AMQP
+      - RABBITMQ_URL=amqp://rabbitmq
+      - SANITIZE_KEYS=true
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672

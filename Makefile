@@ -1,29 +1,17 @@
-start-with-mongo:
-	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.mongo.yml up --scale rabbitmq=0
+DB ?= mongo
+MQ ?= pubsub
+BUILD ?= image
+
+start:
+	docker-compose -f docker-compose.yml -f docker-compose.$(BUILD).yml -f docker-compose.$(DB).yml -f docker-compose.$(MQ).yml up
 	
-start-with-postgres:
-	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.postgres.yml up
-	cd ui && yarn dev
+stop:
+	docker-compose -f docker-compose.yml -f docker-compose.$(BUILD).yml -f docker-compose.$(DB).yml -f docker-compose.$(MQ).yml up
 
-stop-with-mongo:
-	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.mongo.yml stop
-
-stop-with-postgres:
-	docker-compose -f docker-compose.yml -f docker-compose.image.yml -f docker-compose.postgres.yml stop
-
-build-strapi:
+build:
 	docker-compose -f docker-compose.yml -f docker-compose.build.yml build
 
-start-build-with-mongo:
-	docker-compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.mongo.yml up -d
-
-start-build-with-mongo:
-	docker-compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.mongo.yml stop
-
-stop-build-with-postgres:
-	docker-compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.postgres.yml up -d
-
-strapi-logs:
+logs:
 	docker-compose logs -f --tail=500 strapi 
 
 start-frontend:
