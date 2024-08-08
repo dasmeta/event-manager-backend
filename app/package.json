@@ -35,6 +35,10 @@
     "strapi-plugin-users-permissions": "3.6.11",
     "strapi-utils": "3.6.11"
   },
+  "resolutions": {
+    "@aws-sdk/types": "3.254.0",
+    "@aws-sdk/util-locate-window": "3.310.0"
+  },
   "strapi": {
     "uuid": "243ccb3f-d205-4168-8ddb-876548d69d33"
   },
