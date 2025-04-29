@@ -21,4 +21,4 @@
 !ui/package.json
 !ui/tsconfig.json
 !ui/typings.d.ts
-# !ui/yarn.lock
+!ui/yarn.lock
