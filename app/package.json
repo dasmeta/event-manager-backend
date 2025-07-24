@@ -38,7 +38,8 @@
   "resolutions": {
     "@aws-sdk/types": "3.254.0",
     "@aws-sdk/util-locate-window": "3.310.0",
-    "cheerio": "1.0.0-rc.12"
+    "cheerio": "1.0.0-rc.12",
+    "minimatch": "3.1.2"
   },
   "strapi": {
     "uuid": "243ccb3f-d205-4168-8ddb-876548d69d33"
