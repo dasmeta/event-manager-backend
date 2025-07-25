@@ -35,6 +35,7 @@ async function republish(topic, subscription, list) {
                 JSON.stringify({
                     traceId,
                     eventId,
+                    topic,
                     data,
                     dataSource,
                     subscription,
@@ -77,6 +78,7 @@ module.exports = {
         JSON.stringify({
             traceId,
             eventId,
+            topic,
             data,
             dataSource
         })
