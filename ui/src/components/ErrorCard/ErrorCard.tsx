@@ -36,7 +36,7 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
 
     return (
         <Spin spinning={loading}>
-            {list.slice(0, 5).map((item, index) => {
+            {list.sort((a, b) => b.count - a.count).map((item, index) => {
                 const stack = item.error.stack;
                 const error = omit(item.error, ["stack", "message"]);
                 return (
