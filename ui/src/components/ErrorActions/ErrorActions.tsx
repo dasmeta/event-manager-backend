@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Button, Space } from "antd";
+import { Button, Space, Popover, Input } from "antd";
 import { RedoOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
 import { eventApi, eventSubscriptionApi } from "@/services/api";
@@ -15,14 +15,16 @@ interface Props {
 
 const ErrorActions: React.FC<Props> = ({ topic, subscription, events, refresh }) => {
     const [republishing, setRepublishing] = useState(false);
+    const [processing, setProcessing] = useState(false);
     const [marking, setMarking] = useState(false);
+    const [value, setValue] = useState();
 
-    const handleRepublish = useCallback(async () => {
+    const handleRepublish = useCallback(async (limits?: number) => {
         setRepublishing(true);
         await eventApi.eventsRepublishSingleErrorPost({
             topic,
             subscription,
-            events
+            events: limits ? events.slice(0, limits) : events
         });
         setRepublishing(false);
     }, [topic, subscription, events]);
@@ -40,11 +42,33 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, events, refresh })
 
     return (
         <Space size={[8, 8]} wrap>
-            <Button className={styles.btnStyle} size="small" onClick={handleRepublish}>
-                {republishing ? <LoadingOutlined /> : <RedoOutlined />}
-                {" "}
-                {translations.republish}
-            </Button>
+            <Popover
+                title={"Select limits for republish"}
+                placement="top"
+                content={
+                    <div>
+                        <Input
+                            type="number"
+                            placeholder="Limit"
+                            defaultValue={value}
+                            onChange={e => setValue(e.target.value)}
+                        />
+
+                        <br />
+                        <br />
+
+                        <Button size="small" type="primary" onClick={() => handleRepublish(value)}>
+                            Process
+                        </Button>
+                    </div>
+                }
+            >
+                <Button className={styles.btnStyle} size="small">
+                    {republishing ? <LoadingOutlined /> : <RedoOutlined />}
+                    {" "}
+                    {translations.republish}
+                </Button>
+            </Popover>
 
             <Button className={styles.btnStyle} size="small" onClick={handleMarkAsSuccess} icon={<IconShieldDone />}>
                 {translations.markAsSuccess}
