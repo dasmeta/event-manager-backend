@@ -59,7 +59,7 @@ const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, t
                 </div>
             }
         >
-            <Button size="small" onClick={() => setVisible(!visible)}>
+            <Button size="small">
                 {processing ? <LoadingOutlined /> : <RedoOutlined />}
                 {" "}
                 {buttonText}

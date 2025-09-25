@@ -20,6 +20,7 @@ export default {
     republishFail: "Republish Fail",
     republishError: "Republish Error",
     republishPreconditionFail: "Republish PF",
+    republishAll: "Republish All",
     cleanAnomaly: "Clean Anomaly",
     fixMissing: "Fix Missing (SLOW)",
     markAsSuccess: "Mark As Success",
