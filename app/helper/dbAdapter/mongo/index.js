@@ -12,14 +12,15 @@ class client {
                     },
                 },
                 {
-                    $sort: { updatedAt: -1 }
+                    $sort: {
+                        "error.message": 1, 
+                        updatedAt: -1 
+                    }
                 },
                 {
                     $group: {
                         _id: "$error.message",
                         count: {$sum: 1},
-                        error: {$first: "$error"},
-                        eventIds: {$addToSet: "$eventId"},
                     },
                 },
                 {
@@ -32,12 +33,36 @@ class client {
                     $limit: parseInt(limit, 10)
                 },
                 {
+                    $lookup: {
+                        from: "event_subscription",
+                        let: { msg: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    topic,
+                                    subscription,
+                                    isError: true,
+                                    $expr: { $eq: ["$error.message", "$$msg"] }
+                                }
+                            },
+                            { $sort: { updatedAt: -1 } },
+                            { $limit: 20 },
+                            { $group: { _id: null, eventIds: { $push: "$eventId" }, error: { $first: "$error" } } },
+                            { $project: { _id: 0, eventIds: 1, error: 1 } }
+                        ],
+                        as: "details"
+                    }
+                },
+                {
+                    $unwind: "$details",
+                },
+                {
                     $project: {
                         _id: 1,
                         count: 1,
-                        error: 1,
-                        eventIds: { $slice: ["$eventIds", 20] },
-                    },
+                        error: "$details.error",
+                        eventIds: "$details.eventIds",
+                    }
                 }
             ]);
     }
@@ -108,60 +133,141 @@ class client {
     }
 
     async getErrorEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .find({
-                topic,
-                subscription,
-                isError: true,
-                isPreconditionFail: false,
-                isSuccess: false,
-            })
-            .sort({ createdAt: 1 })
-            .select({ eventId: 1 })
-            .limit(limit);
-
-        const ids = eventIdList.map(item => item.eventId);
-        return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 });
+        return strapi.query('event-subscription').model
+            .aggregate([
+                {
+                    $match: {
+                        topic,
+                        subscription,
+                        isError: true,
+                        isPreconditionFail: false,
+                        isSuccess: false,
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                },
+                {
+                    $project: {
+                        eventId: 1,
+                        createdAt: 1,
+                    }
+                },
+                {
+                    $limit: parseInt(limit, 10)
+                },
+                {
+                    $lookup: {
+                        from: "event",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "event",
+                    }
+                },
+                {
+                    $unwind: "$event",
+                },
+                {
+                    $replaceRoot: {
+                        newRoot: "$event",
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                }
+            ]);
     }
 
     async getFailEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .find({
-                topic,
-                subscription,
-                isError: false,
-                isPreconditionFail: false,
-                isSuccess: false,
-            })
-            .sort({ createdAt: 1 })
-            .select({ eventId: 1 })
-            .limit(limit);
-
-        const ids = eventIdList.map(item => item.eventId);
-        return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 });
+        return strapi.query('event-subscription').model
+            .aggregate([
+                {
+                    $match: {
+                        topic,
+                        subscription,
+                        isError: false,
+                        isPreconditionFail: false,
+                        isSuccess: false,
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                },
+                {
+                    $project: {
+                        eventId: 1,
+                        createdAt: 1,
+                    }
+                },
+                {
+                    $limit: parseInt(limit, 10)
+                },
+                {
+                    $lookup: {
+                        from: "event",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "event",
+                    }
+                },
+                {
+                    $unwind: "$event",
+                },
+                {
+                    $replaceRoot: {
+                        newRoot: "$event",
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                }
+            ]);
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
-        const eventIdList = await strapi.query('event-subscription').model
-            .find({
-                topic,
-                subscription,
-                isError: false,
-                isPreconditionFail: true,
-                isSuccess: false
-            })
-            .sort({ createdAt: 1 })
-            .select({ eventId: 1 })
-            .limit(limit);
-
-        const ids = eventIdList.map(item => item.eventId);
-        return strapi.query('event').model
-            .find({ _id: { $in: ids } })
-            .sort({ createdAt: 1 });
+        return strapi.query('event-subscription').model
+            .aggregate([
+                {
+                    $match: {
+                        topic,
+                        subscription,
+                        isError: false,
+                        isPreconditionFail: true,
+                        isSuccess: false,
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                },
+                {
+                    $project: {
+                        eventId: 1,
+                        createdAt: 1,
+                    }
+                },
+                {
+                    $limit: parseInt(limit, 10)
+                },
+                {
+                    $lookup: {
+                        from: "event",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "event",
+                    }
+                },
+                {
+                    $unwind: "$event",
+                },
+                {
+                    $replaceRoot: {
+                        newRoot: "$event",
+                    }
+                },
+                {
+                    $sort: { createdAt: 1 }
+                }
+            ]);
     }
 
     async getSubscriptionsWithoutEvents(topic, subscription) {

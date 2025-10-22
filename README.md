@@ -85,6 +85,34 @@ DATA_RETENTION_DAYS=40 // event that are created more than 40 days ago will be r
 DATA_CLEANUP_HOUR=04 // time in a day on which cleanup job will be executed, in UTC and 24 hour format 
 ```
 
+## Indexes (MUST!!!)
+For smooth performance set following indexes (written in mongo syntax, if using SQL databases must be changed accordingly)
+
+```
+## event (collection / table)
+
+{ entity: 1, entityId: 1 }
+{ entity: 1, entityId: 1, createdAt: 1 },
+{ topic: 1 }
+
+## event_subscription (collection / table)
+
+{ createdAt: -1 }
+{ eventId: 1 }
+{ eventId: 1, createdAt: 1 }
+{ eventId: 1, subscription: 1 }
+{ isError: 1 }
+{ isError: 1, isPreconditionFail: 1, isSuccess: 1, updatedAt: 1 }
+{ isPreconditionFail: 1 }
+{ isSuccess: 1 }
+{ subscription: 1 }
+{ topic: 1 }
+{ topic: 1, subscription: 1 }
+{ topic: 1, subscription: 1, isError: 1, "error.message": 1, updatedAt: -1 }
+{ topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1 }
+{ topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1, createdAt: 1 }
+```
+
 ## Troubleshooting & FAQ
 - View service logs
 ```shell
