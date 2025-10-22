@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
 
 class client {
-    async getErrors(topic, subscription) {
+    async getErrors(topic, subscription, start = 0, limit = 5) {
         return strapi.query('event-subscription').model
             .aggregate([
                 {
@@ -22,6 +22,23 @@ class client {
                         eventIds: {$addToSet: "$eventId"},
                     },
                 },
+                {
+                    $sort: { count: -1 }
+                },
+                {
+                    $skip: parseInt(start, 10)
+                },
+                {
+                    $limit: parseInt(limit, 10)
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        count: 1,
+                        error: 1,
+                        eventIds: { $slice: ["$eventIds", 20] },
+                    },
+                }
             ]);
     }
 

@@ -10,8 +10,8 @@ const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory")
 const store = dbClientFactory.createClient();
 
 module.exports = {
-    async getErrors(topic, subscription) {
-        return store.getErrors(topic, subscription);
+    async getErrors(topic, subscription, start = 0, limit = 5) {
+        return store.getErrors(topic, subscription, start, limit);
     },
 
     async cleanAnomaly(topic, subscription) {

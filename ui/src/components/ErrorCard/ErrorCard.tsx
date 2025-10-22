@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useState } from "react";
-import { Divider, Card, Tag, Space, Spin, message } from "antd";
+import { forwardRef, useEffect, useState, useRef } from "react";
+import { Divider, Card, Tag, Space, Spin, message, Button } from "antd";
 import omit from "lodash/omit";
 import isEmpty from "lodash/isEmpty";
 import translations from "@/assets/translations";
@@ -15,28 +15,48 @@ interface Props {
     refresh: () => {};
 }
 
+const PAGE_SIZE = 5;
+
 const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic, onShowEvent, refresh, expanded = false }, ref) => {
     const [list, setList] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const startRef = useRef(0);
+
+    const fetchPage = async (start: number, append = false) => { 
+     const setBusy = append ? setLoadingMore : setLoading;
+     setBusy(true);
+     try {
+        const { data } = await eventSubscriptionApi.eventSubscriptionsErrorsGet(
+            topic, 
+            subscription, 
+            PAGE_SIZE,
+            start
+        );
+        setList(prev => append ? [...prev, ...data] : data);
+        startRef.current = start + (Array.isArray(data) ? data.length : 0);
+     } catch (e) {
+        message.error(translations.somethingWentWrong);
+     } finally {
+        setBusy(false);
+     }  
+    }
 
     useEffect(() => {
         if(expanded) {
-            setLoading(true);
-            eventSubscriptionApi.eventSubscriptionsErrorsGet(topic, subscription).then(({ data }) => {
-                setList(data);
-                setLoading(false);
-            })
-            .catch(() => {
-                message.error(translations.somethingWentWrong);
-            });
+            startRef.current = 0;
+            fetchPage(0);
         } else {
             setList([]);
+            startRef.current = 0;
         }
     }, [subscription, topic, expanded]);
 
+    const hasMore = list.length > 0 && list.length % PAGE_SIZE === 0;
+
     return (
         <Spin spinning={loading}>
-            {list.sort((a, b) => b.count - a.count).map((item, index) => {
+            {list.map((item, index) => {
                 const stack = item.error.stack;
                 const error = omit(item.error, ["stack", "message"]);
                 return (
@@ -66,7 +86,7 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
                         <div>{!isEmpty(error) && <pre>{JSON.stringify(error, null, 2)}</pre>}</div>
 
                         <div className={styles.eventTags}>
-                            {item.eventIds.slice(0, 20).map(eventId => (
+                            {item.eventIds.map(eventId => (
                                 <Tag key={eventId} onClick={() => onShowEvent(eventId, { topic, subscription })}>
                                     {typeof eventId === "string" ? `..${eventId.substr(-4)}` :  eventId}
                                 </Tag>
@@ -75,6 +95,13 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
                     </Card>
                 );
             })}
+            {hasMore && (
+                <div style={{ textAlign: "center", marginTop: 12 }}>
+                    <Button loading={loadingMore} onClick={() => fetchPage(startRef.current, true)}>
+                        {translations.loadMore}
+                    </Button>
+                </div>
+            )}
         </Spin>
     );
 });

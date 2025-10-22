@@ -9,7 +9,9 @@ module.exports = {
 
     async getErrors(ctx) {
         const {topic, subscription} = ctx.request.query;
-        const list = await strapi.services['event-subscription'].getErrors(topic, subscription);
+        const start = parseInt(ctx.request.query._start || 0, 10);
+        const limit = parseInt(ctx.request.query._limit || 5, 10);
+        const list = await strapi.services['event-subscription'].getErrors(topic, subscription, start, limit);
     
         ctx.send(list);
     },
