@@ -35,5 +35,6 @@ export default {
     password: "Password",
     submit: "Submit",
     requiredField: "Required field!",
-    wrongCredentials: "Wrong credentials"
+    wrongCredentials: "Wrong credentials",
+    loadMore: "Load More"
 };
