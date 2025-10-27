@@ -98,24 +98,18 @@ class client {
     }
 
     async getGroupedSubscriptionsForSingleTopic(topic, subscription) {
-        return strapi.query('event-subscription').model
-            .aggregate([
-                {
-                    $match: {
-                        topic,
-                        subscription
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        count: { $sum: 1 },
-                        success: { $sum: { $cond: ["$isSuccess", 1, 0] } },
-                        error: { $sum: { $cond: ["$isError", 1, 0] } },
-                        preconditionFail: { $sum: { $cond: ["$isPreconditionFail", 1, 0] } },
-                    },
-                },
-            ]);
+
+        const count = await strapi.query('event-subscription').model.count({ topic, subscription });
+        const success = await strapi.query('event-subscription').model.count({ topic, subscription, isSuccess: true });
+        const error = await strapi.query('event-subscription').model.count({ topic, subscription, isError: true });
+        const preconditionFail = await strapi.query('event-subscription').model.count({ topic, subscription, isPreconditionFail: true });
+
+        return {
+            count,
+            success,
+            error,
+            preconditionFail,
+        };
     }
 
     async createOrUpdateStats(topic, subscription, data) {

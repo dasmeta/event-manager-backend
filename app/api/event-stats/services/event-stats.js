@@ -76,7 +76,7 @@ module.exports = {
 
         const subscriptionData = await store.getGroupedSubscriptionsForSingleTopic(topic, subscription);
 
-        const { count = 0, success = 0, error = 0, preconditionFail = 0 } = subscriptionData[0] || {};
+        const { count = 0, success = 0, error = 0, preconditionFail = 0 } = subscriptionData || {};
         const missing = Math.max(total - count, 0);
         const fail = count - success - error - preconditionFail;
 
