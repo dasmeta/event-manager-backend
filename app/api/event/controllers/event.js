@@ -81,14 +81,14 @@ module.exports = {
 
   async republishError(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishError(topic, subscription, parseInt(limit));
+    await strapi.services['event'].republishError(topic, subscription, limit);
     // await strapi.services['event-stats'].calculate();
 
     ctx.send();
   },
   async republishFail(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishFail(topic, subscription, parseInt(limit));
+    await strapi.services['event'].republishFail(topic, subscription, limit);
     // await strapi.services['event-stats'].calculate();
 
     ctx.send();
@@ -96,7 +96,7 @@ module.exports = {
 
   async republishPreconditionFail(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishPreconditionFail(topic, subscription, parseInt(limit));
+    await strapi.services['event'].republishPreconditionFail(topic, subscription, limit);
     // await strapi.services['event'].calculateStats();
 
     ctx.send();
