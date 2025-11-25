@@ -103,8 +103,8 @@ module.exports = {
   },
 
   async republishSingleError(ctx) {
-    const {topic, subscription, events} = ctx.request.body;
-    await strapi.services['event'].republishSingleError(topic, subscription, events);
+    const {topic, subscription, events, message, limit} = ctx.request.body;
+    await strapi.services['event'].republishSingleError(topic, subscription, events, message, limit);
     // await strapi.services['event'].calculateStats();
 
     ctx.send();
