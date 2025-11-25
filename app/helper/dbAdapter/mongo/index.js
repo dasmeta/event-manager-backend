@@ -126,17 +126,24 @@ class client {
         );
     }
 
-    async getErrorEvents(topic, subscription, limit) {
+    async getErrorEvents(topic, subscription, limit, message) {
+
+        const query = {
+            topic,
+            subscription,
+            isError: true,
+            isPreconditionFail: false,
+            isSuccess: false,
+        };
+
+        if(message) {
+            query['error.message'] = message;
+        }
+
         return strapi.query('event-subscription').model
             .aggregate([
                 {
-                    $match: {
-                        topic,
-                        subscription,
-                        isError: true,
-                        isPreconditionFail: false,
-                        isSuccess: false,
-                    }
+                    $match: query
                 },
                 {
                     $sort: { createdAt: 1 }

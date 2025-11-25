@@ -148,10 +148,15 @@ module.exports = {
     return republish(topic, subscription, list);
   },
 
-  republishSingleError: async (topic, subscription, events) => {
-    const list = await store.getEventsByIds(events);
+  republishSingleError: async (topic, subscription, events, message, limit = Number.MAX_SAFE_INTEGER) => {
 
-    console.log(list);
+    let list = [];
+
+    if(events.length > 0) {
+        list = await store.getEventsByIds(events);
+    } else {
+        list = await store.getErrorEvents(topic, subscription, limit, message);
+    }
 
     if (logger.isDebug()) {
         logger.debug("REPUBLISH SINGLE ERROR", { topic, subscription, events });

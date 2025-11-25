@@ -137,6 +137,7 @@ const EventModal: React.FC<Props> = forwardRef<any, Props>(({ refresh }, ref) =>
                         subscription={subscription}
                         events={[eventId]}
                         refresh={refresh}
+                        showLimit={false}
                     />
                 </div>
             </div>

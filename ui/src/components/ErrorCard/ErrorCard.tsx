@@ -74,6 +74,7 @@ const ErrorCard: React.FC<Props> = forwardRef<any, Props>(({ subscription, topic
                             <ErrorActions
                                 topic={topic}
                                 subscription={subscription}
+                                error={item._id}
                                 events={item.eventIds}
                                 refresh={refresh}
                             />

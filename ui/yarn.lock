@@ -1494,10 +1494,10 @@
   resolved "https://registry.yarnpkg.com/@ctrl/tinycolor/-/tinycolor-3.6.1.tgz#b6c75a56a1947cc916ea058772d666a2c8932f31"
   integrity sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==
 
-"@dasmeta/event-manager-node-api@^2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@dasmeta/event-manager-node-api/-/event-manager-node-api-2.2.4.tgz#d3a02b4dea950661aee4a2d2dc158327b572b7bf"
-  integrity sha512-nc0GglSCPTrplqxJuIC3kKArXXaforO/QCdfnsjXF5QOdfk2i2zRvB+tRUXH3/RCWo8V/Il8oLrQmu+35Oyewg==
+"@dasmeta/event-manager-node-api@^2.2.5":
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/@dasmeta/event-manager-node-api/-/event-manager-node-api-2.2.5.tgz#c8283cd3dbe9faa2a10f55eb47eaf7b103e41a37"
+  integrity sha512-eAgDO4Xm3GNLUCSLUdKJVFtllQeTaerQkxwnukR3MjVe2oDAerBkQ+Bq1aAD+Jx8qi+yidADojfU2smXrbnugw==
   dependencies:
     axios "^0.21.1"
 
