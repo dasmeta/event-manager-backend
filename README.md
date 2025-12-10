@@ -112,6 +112,7 @@ For smooth performance set following indexes (written in mongo syntax, if using 
 { topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1 }
 { topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1, createdAt: 1 }
 { topic: 1, subscription: 1, isSuccess: 1 }
+{ topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1, "error.message": 1, createdAt: 1 }
 ```
 
 ## Troubleshooting & FAQ
