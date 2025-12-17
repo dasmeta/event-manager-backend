@@ -440,7 +440,18 @@ class client {
         );
     }
 
-    async updateSubscriptionByEvents(topic, subscription, eventIds, data) {
+    async updateSubscriptionByEvents(topic, subscription, eventIds, message, data) {
+
+        if(eventIds.length === 0) {
+            return strapi.query('event-subscription').model.updateMany({
+                topic,
+                subscription,
+                'error.message': message,
+            }, {
+                $set: data
+            });
+        }
+
         return strapi.query('event-subscription').model.updateMany(
             {
                 topic,
