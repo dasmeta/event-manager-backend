@@ -146,12 +146,13 @@ module.exports = {
         )
     },
 
-    async markSingleAsSuccess(topic, subscription, events) {
+    async markSingleAsSuccess(topic, subscription, events, message) {
 
         await store.updateSubscriptionByEvents(
             topic,
             subscription,
             events,
+            message,
             {
                 isSuccess: true,
                 isError: false,

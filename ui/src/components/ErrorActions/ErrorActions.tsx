@@ -40,12 +40,13 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
         setRepublishing(false);
     }, [topic, subscription, events, showLimit, error]);
 
-    const handleMarkAsSuccess = useCallback(async () => {
+    const handleMarkAsSuccess = useCallback(async (all = false) => {
         setMarking(true);
         await eventSubscriptionApi.eventSubscriptionsMarkSingleAsSuccessPost({
             topic,
             subscription,
-            events
+            events: all ? [] : events,
+            message: error,
         });
         setMarking(false);
         await refresh();
@@ -59,9 +60,9 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
                     {" "}
                     {translations.republish}
                 </Button>
-                <Button className={styles.btnStyle} size="small" onClick={handleMarkAsSuccess} icon={<IconShieldDone />}>
-                {translations.markAsSuccess}
-            </Button>
+                <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(false)} icon={<IconShieldDone />}>
+                    {translations.markAsSuccess}
+                </Button>
             </Space>
         );
     }
@@ -96,7 +97,7 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
                 </Button>
             </Popover>
 
-            <Button className={styles.btnStyle} size="small" onClick={handleMarkAsSuccess} icon={<IconShieldDone />}>
+            <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(true)} icon={<IconShieldDone />}>
                 {translations.markAsSuccess}
             </Button>
         </Space>
