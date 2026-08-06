@@ -7,11 +7,13 @@ ENV NODE_ENV=production
 COPY ./app .
 
 # # RUN yarn install --frozen-lockfile
-RUN yarn install
+# --production: skip devDependencies (e.g. jest)
+# --ignore-engines: package.json may still resolve modern transitive engines (Node 14 image)
+RUN yarn install --production --ignore-engines
 RUN yarn build
 
 COPY ./ui ./ui
-RUN cd ./ui && yarn install
+RUN cd ./ui && yarn install --ignore-engines
 RUN cd ./ui && yarn build
 
 RUN cp -a ./ui/dist/. ./public/
