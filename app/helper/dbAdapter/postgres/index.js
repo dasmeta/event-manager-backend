@@ -1,85 +1,122 @@
-class client {
-    async getErrors(topic, subscription) {
-        const knex = strapi.connections.default;
+const { getPostgresIndexes } = require("../indexes");
 
-        return knex('event_subscription')
+class client {
+    async getErrors(topic, subscription, start = 0, limit = 5) {
+        const knex = strapi.connections.default;
+        const offset = parseInt(start, 10) || 0;
+        const pageLimit = parseInt(limit, 10) || 5;
+
+        const groups = await knex('event_subscription')
             .where({
                 topic,
                 subscription,
-                isError: true
+                isError: true,
             })
             .select({
                 _id: knex.raw("error->>'message'"),
                 count: knex.raw('COUNT(id)'),
-                error: knex.raw("error"),
-                eventIds: knex.raw('ARRAY_AGG("eventId")')
             })
-            .orderBy('updated_at', 'DESC')
-            .groupByRaw("error->>'message', error");
+            .groupByRaw("error->>'message'")
+            .orderBy('count', 'desc')
+            .offset(offset)
+            .limit(pageLimit);
+
+        const results = [];
+        for (const group of groups) {
+            const details = await knex('event_subscription')
+                .where({
+                    topic,
+                    subscription,
+                    isError: true,
+                })
+                .whereRaw("error->>'message' = ?", [group._id])
+                .orderBy('updated_at', 'desc')
+                .limit(20)
+                .select({
+                    eventId: 'eventId',
+                    error: 'error',
+                });
+
+            results.push({
+                _id: group._id,
+                count: Number(group.count),
+                error: details[0] ? details[0].error : null,
+                eventIds: details.map((row) => row.eventId),
+            });
+        }
+
+        return results;
     }
 
     async getGroupedEvents() {
         const knex = strapi.connections.default;
         return knex('event')
             .groupBy('topic')
-            .select({ _id: 'topic', total: knex.raw('COUNT(id)')})
+            .select({ _id: 'topic', total: knex.raw('COUNT(id)') });
     }
 
     async getGroupedSubscriptions() {
         const knex = strapi.connections.default;
         const result = await knex('event_subscription')
             .groupBy(['topic', 'subscription'])
-            .select({ 
-                topic: 'topic', 
+            .select({
+                topic: 'topic',
                 subscription: 'subscription',
                 count: knex.raw('COUNT(id)'),
                 success: knex.raw('COUNT(nullif("isSuccess", false))'),
                 error: knex.raw('COUNT(nullif("isError", false))'),
-                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))')
+                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))'),
             });
 
-        return result.map(item => ({
+        return result.map((item) => ({
             _id: {
                 topic: item.topic,
-                subscription: item.subscription
+                subscription: item.subscription,
             },
             count: item.count,
             success: item.success,
             error: item.error,
-            preconditionFail: item.preconditionFail
-        }))
+            preconditionFail: item.preconditionFail,
+        }));
     }
 
     async getGroupedSubscriptionsForSingleTopic(topic, subscription) {
         const knex = strapi.connections.default;
-        return knex('event_subscription')
+        const row = await knex('event_subscription')
             .where({
                 topic,
-                subscription
+                subscription,
             })
-            .groupBy(['topic', 'subscription'])
-            .select({ 
+            .select({
                 count: knex.raw('COUNT(id)'),
                 success: knex.raw('COUNT(nullif("isSuccess", false))'),
                 error: knex.raw('COUNT(nullif("isError", false))'),
-                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))')
-            });
+                preconditionFail: knex.raw('COUNT(nullif("isPreconditionFail", false))'),
+            })
+            .first();
+
+        return {
+            count: Number((row && row.count) || 0),
+            success: Number((row && row.success) || 0),
+            error: Number((row && row.error) || 0),
+            preconditionFail: Number((row && row.preconditionFail) || 0),
+        };
     }
 
     async createOrUpdateStats(topic, subscription, data) {
         const stats = await strapi.query('event-stats').model
             .where({
                 topic,
-                subscription
+                subscription,
             })
             .fetch();
 
-        if(stats) {
+        if (stats) {
             return stats.save({
                 topic,
                 subscription,
                 ...data,
-            })
+            });
         }
 
         return strapi.query('event-stats').model
@@ -91,23 +128,30 @@ class client {
             });
     }
 
-    async getErrorEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+    async getErrorEvents(topic, subscription, limit, message) {
+        const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
             qb.where({
                 topic,
                 subscription,
                 isError: true,
                 isPreconditionFail: false,
                 isSuccess: false,
-            })
-            qb.select({ eventId: 'eventId'})
-            qb.orderBy('created_at', 'ASC')
+            });
+            if (message) {
+                qb.whereRaw("error->>'message' = ?", [message]);
+            }
+            qb.select({ eventId: 'eventId' });
+            qb.orderBy('created_at', 'ASC');
         }).fetchPage({
             limit,
             withRelated: [],
         });
 
-        const ids = eventIdList.toJSON().map(item => item.eventId);
+        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        if (!ids.length) {
+            return [];
+        }
+
         const result = await strapi.query('event').model
             .where('id', 'in', ids)
             .orderBy('created_at', 'ASC')
@@ -117,47 +161,55 @@ class client {
     }
 
     async getFailEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+        const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
             qb.where({
                 topic,
                 subscription,
                 isError: false,
                 isPreconditionFail: false,
-                isSuccess: false
-            })
-            qb.select({ eventId: 'eventId'})
-            qb.orderBy('created_at', 'ASC')
+                isSuccess: false,
+            });
+            qb.select({ eventId: 'eventId' });
+            qb.orderBy('created_at', 'ASC');
         }).fetchPage({
             limit,
             withRelated: [],
         });
 
-        const ids = eventIdList.toJSON().map(item => item.eventId);
+        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        if (!ids.length) {
+            return [];
+        }
+
         const result = await strapi.query('event').model
             .where('id', 'in', ids)
             .orderBy('created_at', 'ASC')
             .fetchAll();
-    
+
         return result.toJSON();
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
-        const eventIdList = await strapi.query('event-subscription').model.query(qb => {
+        const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
             qb.where({
                 topic,
                 subscription,
                 isError: false,
                 isPreconditionFail: true,
-                isSuccess: false
-            })
-            qb.select({ eventId: 'eventId'})
-            qb.orderBy('created_at', 'ASC')
+                isSuccess: false,
+            });
+            qb.select({ eventId: 'eventId' });
+            qb.orderBy('created_at', 'ASC');
         }).fetchPage({
             limit,
             withRelated: [],
         });
 
-        const ids = eventIdList.toJSON().map(item => item.eventId);
+        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        if (!ids.length) {
+            return [];
+        }
+
         const result = await strapi.query('event').model
             .where('id', 'in', ids)
             .orderBy('created_at', 'ASC')
@@ -167,15 +219,18 @@ class client {
     }
 
     async getSubscriptionsWithoutEvents(topic, subscription) {
-        const data = await strapi.query('event-subscription').model
-            .where({
-                topic,
-                subscription
-            })
-            .where('eventId', 'is', null)
-            .fetchAll();
+        const knex = strapi.connections.default;
 
-        return data.toJSON();
+        return knex('event_subscription as es')
+            .leftJoin('event as e', 'es.eventId', 'e.id')
+            .where({
+                'es.topic': topic,
+                'es.subscription': subscription,
+            })
+            .where(function () {
+                this.whereNull('es.eventId').orWhereNull('e.id');
+            })
+            .select('es.*');
     }
 
     async getDuplicateSubscriptions(topic, subscription) {
@@ -184,16 +239,16 @@ class client {
         const result = await knex('event_subscription')
             .where({
                 topic,
-                subscription
+                subscription,
             })
             .groupBy('eventId')
             .select({
-               id: 'eventId',
-               count: knex.raw('COUNT(id)'),
-               createdAts: knex.raw('ARRAY_AGG("created_at")')
+                id: 'eventId',
+                count: knex.raw('COUNT(id)'),
+                createdAts: knex.raw('ARRAY_AGG("created_at")'),
             });
 
-        return result.filter(item => item.count > 1);
+        return result.filter((item) => item.count > 1);
     }
 
     async removeUnnecessarySubscriptions(topic, subscription) {
@@ -202,34 +257,39 @@ class client {
 
         const knex = strapi.connections.default;
 
-        const ids = list.map(item => item.id);
-        if(ids.length) {
+        const ids = list.map((item) => item.id);
+        if (ids.length) {
             await knex('event_subscription')
                 .whereIn('id', ids)
                 .delete();
         }
 
-        duplicates.forEach(async item => {
-            const eventId = item.id;
-            const createdAts = item.createdAts.sort((a, b) => a.getTime() - b.getTime());
-            createdAts.pop();
-            await knex('event_subscription')
-                .whereIn('created_at', createdAts)
-                .where('eventId', eventId)
-                .delete();
-        });
+        await Promise.all(
+            duplicates.map(async (item) => {
+                const eventId = item.id;
+                const createdAts = [...item.createdAts].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                createdAts.pop();
+                if (!createdAts.length) {
+                    return;
+                }
+                await knex('event_subscription')
+                    .whereIn('created_at', createdAts)
+                    .where('eventId', eventId)
+                    .delete();
+            })
+        );
     }
 
     async getMissingEvents(topic, subscription) {
         const knex = strapi.connections.default;
 
         return knex('event_subscription')
-            .select({ 
+            .select({
                 id: 'eventId',
-                subscriptions: knex.raw('ARRAY_AGG(subscription)')
+                subscriptions: knex.raw('ARRAY_AGG(subscription)'),
             })
             .where({
-                topic
+                topic,
             })
             .groupBy('eventId')
             .havingNotIn(knex.raw('ARRAY_AGG(subscription)'), `{${subscription}}`);
@@ -261,11 +321,11 @@ class client {
     async getEventsWithSubscription(subscription, eventIds) {
         const knex = strapi.connections.default;
         const result = await knex('event_subscription')
-            .distinct("eventId")
+            .distinct('eventId')
             .where({
                 subscription,
             })
-            .whereIn("eventId", eventIds);
+            .whereIn('eventId', eventIds);
         return result.reduce((acc, item) => {
             acc.push(item.eventId);
             return acc;
@@ -278,18 +338,25 @@ class client {
             .where(condition)
             .select({ id: 'id' })
             .first();
-        
-        if(!row) {
+
+        const now = new Date();
+
+        if (!row) {
             return knex('event_subscription')
                 .insert({
                     ...condition,
-                    ...data
+                    ...data,
+                    created_at: now,
+                    updated_at: now,
                 });
         }
 
         return knex('event_subscription')
             .where({ id: row.id })
-            .update({...data})
+            .update({
+                ...data,
+                updated_at: now,
+            });
     }
 
     async updateSubscriptionByDate(topic, subscription, start, end, data) {
@@ -297,7 +364,7 @@ class client {
         return knex('event_subscription')
             .where({
                 topic,
-                subscription
+                subscription,
             })
             .where('created_at', '>=', start)
             .where('created_at', '<=', end)
@@ -311,19 +378,27 @@ class client {
                 topic,
                 subscription,
                 isSuccess: false,
-                isError: type === "error",
-                isPreconditionFail: type === "preconditionFail"
+                isError: type === 'error',
+                isPreconditionFail: type === 'preconditionFail',
             })
             .update(data);
     }
 
-    async updateSubscriptionByEvents(topic, subscription, eventIds, data) {
+    async updateSubscriptionByEvents(topic, subscription, eventIds, message, data) {
         const knex = strapi.connections.default;
-        return knex('event_subscription')
+        const query = knex('event_subscription')
             .where({
                 topic,
-                subscription
-            })
+                subscription,
+            });
+
+        if (!eventIds || eventIds.length === 0) {
+            return query
+                .whereRaw("error->>'message' = ?", [message])
+                .update(data);
+        }
+
+        return query
             .whereIn('eventId', eventIds)
             .update(data);
     }
@@ -337,21 +412,21 @@ class client {
             traceId,
             isSuccess: false,
             isError: false,
-            isPreconditionFail: false
+            isPreconditionFail: false,
         });
     }
 
     async recordSuccess(topic, subscription, eventId, traceId) {
         return this.createOrUpdateSubscription({
             eventId,
-            subscription
+            subscription,
         }, {
             topic,
             traceId,
             isSuccess: true,
             isError: false,
-            isPreconditionFail: false
-        })
+            isPreconditionFail: false,
+        });
     }
 
     async recordFailure(topic, subscription, eventId, traceId, error) {
@@ -362,7 +437,7 @@ class client {
 
         return this.createOrUpdateSubscription({
             eventId,
-            subscription
+            subscription,
         }, {
             topic,
             traceId,
@@ -376,21 +451,20 @@ class client {
     async recordPreconditionFailure(topic, subscription, eventId, traceId) {
         return this.createOrUpdateSubscription({
             eventId,
-            subscription
+            subscription,
         }, {
             topic,
             traceId,
             isSuccess: false,
             isError: false,
             isPreconditionFail: true,
-        })
+        });
     }
 
     async hasReachedMaxAttempts(topic, subscription, eventId, maxAttempts = 5) {
-
-        const events = await strapi.query('event-subscription').model.query(qb => {
+        const events = await strapi.query('event-subscription').model.query((qb) => {
             qb.where({ eventId, subscription, topic })
-                .andWhere('attempts', '>', parseInt(maxAttempts))
+                .andWhere('attempts', '>', parseInt(maxAttempts, 10));
         }).fetchAll();
 
         return !!events.length;
@@ -398,35 +472,108 @@ class client {
 
     async getTopicList() {
         const knex = strapi.connections.default;
-        const list = await knex('event').distinct("topic");
-        return list.map(item => item.topic);
+        const list = await knex('event').distinct('topic');
+        return list.map((item) => item.topic);
     }
 
     async getSubscriptionListByTopic(topic) {
         const knex = strapi.connections.default;
         const list = await knex('event_subscription')
             .where({ topic })
-            .distinct("subscription");
-        return list.map(item => item.subscription);
+            .distinct('subscription');
+        return list.map((item) => item.subscription);
     }
 
     async getFirstSubscription() {
-        // TODO
-        return false;
-        // const data = await strapi.query('event-subscription').model.find({}).limit(1).sort({ createdAt: 1 });
-        // return data[0];
+        const knex = strapi.connections.default;
+        return knex('event_subscription')
+            .orderBy('created_at', 'asc')
+            .first();
     }
 
     async getEventsToRemove(start, end) {
-        // TODO
-        return [];
+        if (!start || !end) {
+            return [];
+        }
+
+        const knex = strapi.connections.default;
+        const rows = await knex('event_subscription')
+            .where('created_at', '>=', new Date(start))
+            .where('created_at', '<', new Date(end))
+            .groupBy('eventId')
+            .select({
+                eventId: 'eventId',
+                total: knex.raw('COUNT(id)'),
+                succeededCount: knex.raw('COUNT(nullif("isSuccess", false))'),
+            })
+            .havingRaw('COUNT(id) = COUNT(nullif("isSuccess", false))');
+
+        return rows.map((row) => row.eventId);
     }
 
     async archiveData(eventIds = []) {
-        // TODO
+        if (!eventIds.length) {
+            return;
+        }
+
+        const knex = strapi.connections.default;
+        const events = await knex('event').whereIn('id', eventIds);
+        const subscriptions = await knex('event_subscription').whereIn('eventId', eventIds);
+
+        if (events.length) {
+            const archiveEvents = events.map(({ id, ...rest }) => rest);
+            await knex('event_archives').insert(archiveEvents);
+        }
+
+        if (subscriptions.length) {
+            const archiveSubscriptions = subscriptions.map(({ id, ...rest }) => rest);
+            await knex('event_subscription_archives').insert(archiveSubscriptions);
+        }
+
+        await knex('event_subscription').whereIn('eventId', eventIds).delete();
+        await knex('event').whereIn('id', eventIds).delete();
+    }
+
+    async ensureIndexes() {
+        const knex = strapi.connections.default;
+        const indexes = getPostgresIndexes();
+
+        const normalize = (sql) => String(sql || '')
+            .toLowerCase()
+            .replace(/\s+/g, ' ')
+            .replace(/"/g, '')
+            .replace(/public\./g, '')
+            .trim();
+
+        for (const index of indexes) {
+            const existing = await knex('pg_indexes')
+                .where({ indexname: index.name })
+                .first();
+
+            if (!existing) {
+                await knex.raw(index.createSql);
+                continue;
+            }
+
+            const actual = normalize(existing.indexdef);
+            const tableToken = `on ${normalize(index.table)} `;
+            const tableTokenQuoted = `on "${normalize(index.table)}" `;
+            const tableMatch = actual.includes(tableToken) || actual.includes(tableTokenQuoted)
+                || actual.includes(`on public.${normalize(index.table)} `);
+
+            const columnsMatch = index.columns.every((col) => {
+                const fragment = normalize(col.replace(/ DESC$/i, ''));
+                return actual.includes(fragment);
+            });
+
+            if (!columnsMatch || !tableMatch) {
+                await knex.raw(`DROP INDEX IF EXISTS "${index.name}"`);
+                await knex.raw(index.createSql);
+            }
+        }
     }
 }
 
 module.exports = {
-    client
-}
+    client,
+};

@@ -1,4 +1,5 @@
 const { ObjectId } = require("mongodb");
+const { getMongoIndexes, mongoKeysEqual } = require("../indexes");
 
 class client {
     async getErrors(topic, subscription, start = 0, limit = 5) {
@@ -634,6 +635,50 @@ class client {
 
         await strapi.query('event').model.deleteMany({ _id: eventIds });
         await strapi.query('event-subscription').model.deleteMany({ eventId: eventIds });
+    }
+
+    async ensureIndexes() {
+        const indexes = getMongoIndexes();
+        const collectionMap = {
+            event: strapi.query('event').model.collection,
+            event_subscription: strapi.query('event-subscription').model.collection,
+        };
+
+        for (const index of indexes) {
+            const collection = collectionMap[index.collection];
+            if (!collection) {
+                strapi.log.warn(`ensureIndexes: unknown collection ${index.collection}`);
+                continue;
+            }
+
+            let existingIndexes = [];
+            try {
+                existingIndexes = await collection.indexes();
+            } catch (err) {
+                // Collection may not have indexes yet
+                existingIndexes = [];
+            }
+
+            const existing = existingIndexes.find((item) => item.name === index.name);
+
+            if (!existing) {
+                try {
+                    await collection.createIndex(index.keys, { name: index.name, background: true });
+                } catch (err) {
+                    strapi.log.warn(`ensureIndexes: failed to create ${index.name}: ${err.message}`);
+                }
+                continue;
+            }
+
+            if (!mongoKeysEqual(existing.key, index.keys)) {
+                try {
+                    await collection.dropIndex(index.name);
+                    await collection.createIndex(index.keys, { name: index.name, background: true });
+                } catch (err) {
+                    strapi.log.warn(`ensureIndexes: failed to update ${index.name}: ${err.message}`);
+                }
+            }
+        }
     }
 }
 
