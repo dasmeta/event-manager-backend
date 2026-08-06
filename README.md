@@ -70,6 +70,12 @@ MQ_CLIENT_NAME=SNS
 AWS_REGION=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
+
+# Optional publish / stats
+# SANITIZE_KEYS=true
+# PUBSUB_EVENTS_DATA_SOURCE=
+# JWT_EXPIRATION=30d
+# USE_OLD_CALCULATE=true
 ```
 - Create and start a container ready to handle connections
 ```shell
@@ -85,8 +91,15 @@ DATA_RETENTION_DAYS=40 // event that are created more than 40 days ago will be r
 DATA_CLEANUP_HOUR=04 // time in a day on which cleanup job will be executed, in UTC and 24 hour format 
 ```
 
-## Indexes (MUST!!!)
-For smooth performance set following indexes (written in mongo syntax, if using SQL databases must be changed accordingly)
+With Postgres, retention works once these env vars are set (same as Mongo). Cron archives fully-succeeded events older than `DATA_RETENTION_DAYS`.
+
+## Indexes
+
+Performance indexes for `event` and `event_subscription` are **ensured automatically on startup** for both Mongo and Postgres via native `createIndex` / `CREATE INDEX` (see `app/helper/dbAdapter/indexes.js`). Collections/tables remain Strapi-managed.
+
+First boot after an upgrade may take longer while indexes are built. Second boot is a no-op when indexes already match.
+
+### Mongo reference (keys)
 
 ```
 ## event (collection / table)
@@ -115,13 +128,46 @@ For smooth performance set following indexes (written in mongo syntax, if using 
 { topic: 1, subscription: 1, isError: 1, isPreconditionFail: 1, isSuccess: 1, "error.message": 1, createdAt: 1 }
 ```
 
+### Postgres reference (equivalent)
+
+```sql
+-- event
+CREATE INDEX "em_event_entity_entityId" ON "event" (entity, "entityId");
+CREATE INDEX "em_event_entity_entityId_createdAt" ON "event" (entity, "entityId", created_at);
+CREATE INDEX "em_event_topic" ON "event" (topic);
+
+-- event_subscription
+CREATE INDEX "em_es_createdAt" ON "event_subscription" (created_at DESC);
+CREATE INDEX "em_es_eventId" ON "event_subscription" ("eventId");
+CREATE INDEX "em_es_eventId_createdAt" ON "event_subscription" ("eventId", created_at);
+CREATE INDEX "em_es_eventId_subscription" ON "event_subscription" ("eventId", subscription);
+CREATE INDEX "em_es_isError" ON "event_subscription" ("isError");
+CREATE INDEX "em_es_isError_isPF_isSuccess_updatedAt" ON "event_subscription" ("isError", "isPreconditionFail", "isSuccess", updated_at);
+CREATE INDEX "em_es_isPreconditionFail" ON "event_subscription" ("isPreconditionFail");
+CREATE INDEX "em_es_isSuccess" ON "event_subscription" ("isSuccess");
+CREATE INDEX "em_es_subscription" ON "event_subscription" (subscription);
+CREATE INDEX "em_es_topic" ON "event_subscription" (topic);
+CREATE INDEX "em_es_topic_subscription" ON "event_subscription" (topic, subscription);
+CREATE INDEX "em_es_topic_sub_isError_msg_updatedAt" ON "event_subscription" (topic, subscription, "isError", ((error->>'message')), updated_at DESC);
+CREATE INDEX "em_es_topic_sub_isError_isPF_isSuccess" ON "event_subscription" (topic, subscription, "isError", "isPreconditionFail", "isSuccess");
+CREATE INDEX "em_es_topic_sub_flags_createdAt" ON "event_subscription" (topic, subscription, "isError", "isPreconditionFail", "isSuccess", created_at);
+CREATE INDEX "em_es_topic_subscription_isSuccess" ON "event_subscription" (topic, subscription, "isSuccess");
+CREATE INDEX "em_es_topic_sub_flags_msg_createdAt" ON "event_subscription" (topic, subscription, "isError", "isPreconditionFail", "isSuccess", ((error->>'message')), created_at);
+```
+
+## API permissions
+
+On startup, Strapi 3 **authenticated** role permissions for the allowlisted application APIs (UI + runtime SDK) are enabled automatically. Public stays locked except `healthcheck.check`. See `app/config/functions/ensurePermissions.js` to extend the allowlist. No Admin UI clicks are required for those routes.
+
 ## Troubleshooting & FAQ
 - View service logs
 ```shell
 $ docker logs -f --since 2m em-backend
 ```
-- Run tests
+- Run unit tests (Jest; mocked — no live DB required)
 ```shell
+$ cd app && yarn test
+# or inside the container:
 $ docker exec em-backend bash -c "yarn test"
 ```
 
