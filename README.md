@@ -76,6 +76,8 @@ AWS_SECRET_ACCESS_KEY=
 # PUBSUB_EVENTS_DATA_SOURCE=
 # JWT_EXPIRATION=30d
 # USE_OLD_CALCULATE=true
+# SEED_EVENT_STATS_ON_START=false
+# EVENT_STATS_SEED_PAIRS=[{"topic":"my.topic","subscription":"my_sub"}]
 ```
 - Create and start a container ready to handle connections
 ```shell
@@ -83,6 +85,24 @@ $ make up-with-mongo
 $ make up-with-postgres
 ```
 - The service will be accessible on http://0.0.0.0:8037
+
+### Seed event-stats list on startup
+
+On boot (in the background), the service creates missing `event-stats` rows with zeros from distinct pairs in `event_subscription` so the UI list is visible. Counts stay `0` until you use Calculate / Calculate single.
+
+This is **on by default**. Disable with:
+
+```
+SEED_EVENT_STATS_ON_START=false
+```
+
+If `event_subscription` is also empty, optionally provide pairs explicitly:
+
+```
+EVENT_STATS_SEED_PAIRS=[{"topic":"my.topic","subscription":"my_sub"}]
+```
+
+(Alternatively keep using `emc platform:update-stats` from the project function configs.)
 
 ### If data retention following env variables should be defined
 ```

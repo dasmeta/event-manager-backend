@@ -9,6 +9,7 @@
 
 const { dbClientFactory } = require('../../helper/dbAdapter/dbClientFactory');
 const { ensureAuthenticatedPermissions } = require('./ensurePermissions');
+const { seedEventStatsInBackground } = require('./seedEventStats');
 
 module.exports = async () => {
   try {
@@ -27,4 +28,7 @@ module.exports = async () => {
   } catch (err) {
     strapi.log.warn(`ensurePermissions failed: ${err.message}`);
   }
+
+  // Non-blocking: create missing event-stats rows with zeros (UI list only)
+  seedEventStatsInBackground();
 };
