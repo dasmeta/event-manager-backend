@@ -127,6 +127,64 @@ class client {
         );
     }
 
+    async fetchSubscriptionEventIds(query, limit) {
+        const rows = await strapi.query('event-subscription').model
+            .aggregate([
+                {
+                    $match: query
+                },
+                {
+                    $sort: { createdAt: 1 }
+                },
+                {
+                    $project: {
+                        eventId: 1,
+                    }
+                },
+                {
+                    $limit: parseInt(limit, 10)
+                },
+            ]);
+
+        return rows.map((row) => row.eventId);
+    }
+
+    async getErrorEventIds(topic, subscription, limit, message) {
+        const query = {
+            topic,
+            subscription,
+            isError: true,
+            isPreconditionFail: false,
+            isSuccess: false,
+        };
+
+        if (message) {
+            query['error.message'] = message;
+        }
+
+        return this.fetchSubscriptionEventIds(query, limit);
+    }
+
+    async getFailEventIds(topic, subscription, limit) {
+        return this.fetchSubscriptionEventIds({
+            topic,
+            subscription,
+            isError: false,
+            isPreconditionFail: false,
+            isSuccess: false,
+        }, limit);
+    }
+
+    async getPreconditionFailEventIds(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
+        return this.fetchSubscriptionEventIds({
+            topic,
+            subscription,
+            isError: false,
+            isPreconditionFail: true,
+            isSuccess: false,
+        }, limit);
+    }
+
     async getErrorEvents(topic, subscription, limit, message) {
 
         const query = {
