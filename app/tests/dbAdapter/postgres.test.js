@@ -144,6 +144,54 @@ describe('postgres db adapter', () => {
         });
     });
 
+    describe('getErrorEventIds', () => {
+        function mockSubscriptionIds({ rows, expectMessage }) {
+            const qb = {
+                where: jest.fn().mockReturnThis(),
+                whereRaw: jest.fn().mockReturnThis(),
+                select: jest.fn().mockReturnThis(),
+                orderBy: jest.fn().mockReturnThis(),
+            };
+
+            strapi.query = jest.fn((model) => {
+                if (model === 'event-subscription') {
+                    return {
+                        model: {
+                            query: (fn) => {
+                                fn(qb);
+                                if (expectMessage) {
+                                    expect(qb.whereRaw).toHaveBeenCalledWith(
+                                        "error->>'message' = ?",
+                                        [expectMessage]
+                                    );
+                                } else {
+                                    expect(qb.whereRaw).not.toHaveBeenCalled();
+                                }
+                                return {
+                                    fetchPage: async () => createBookshelfCollection(rows),
+                                };
+                            },
+                        },
+                    };
+                }
+                throw new Error(`unexpected model query: ${model}`);
+            });
+        }
+
+        it('returns only event ids and does not load event payloads', async () => {
+            mockSubscriptionIds({ rows: [{ eventId: 1 }, { eventId: 2 }], expectMessage: null });
+            const result = await store.getErrorEventIds('t', 's', 10);
+            expect(result).toEqual([1, 2]);
+            expect(strapi.query).not.toHaveBeenCalledWith('event');
+        });
+
+        it('filters ids by error message when provided', async () => {
+            mockSubscriptionIds({ rows: [{ eventId: 9 }], expectMessage: 'timeout' });
+            const result = await store.getErrorEventIds('t', 's', 10, 'timeout');
+            expect(result).toEqual([9]);
+        });
+    });
+
     describe('getErrors', () => {
         it('uses default start/limit and caps eventIds at 20', async () => {
             let call = 0;

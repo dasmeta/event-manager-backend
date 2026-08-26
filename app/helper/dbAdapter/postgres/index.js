@@ -128,15 +128,9 @@ class client {
             });
     }
 
-    async getErrorEvents(topic, subscription, limit, message) {
+    async fetchSubscriptionEventIds(where, limit, message) {
         const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
-            qb.where({
-                topic,
-                subscription,
-                isError: true,
-                isPreconditionFail: false,
-                isSuccess: false,
-            });
+            qb.where(where);
             if (message) {
                 qb.whereRaw("error->>'message' = ?", [message]);
             }
@@ -147,7 +141,41 @@ class client {
             withRelated: [],
         });
 
-        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        return eventIdList.toJSON().map((item) => item.eventId);
+    }
+
+    async getErrorEventIds(topic, subscription, limit, message) {
+        return this.fetchSubscriptionEventIds({
+            topic,
+            subscription,
+            isError: true,
+            isPreconditionFail: false,
+            isSuccess: false,
+        }, limit, message);
+    }
+
+    async getFailEventIds(topic, subscription, limit) {
+        return this.fetchSubscriptionEventIds({
+            topic,
+            subscription,
+            isError: false,
+            isPreconditionFail: false,
+            isSuccess: false,
+        }, limit);
+    }
+
+    async getPreconditionFailEventIds(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
+        return this.fetchSubscriptionEventIds({
+            topic,
+            subscription,
+            isError: false,
+            isPreconditionFail: true,
+            isSuccess: false,
+        }, limit);
+    }
+
+    async getErrorEvents(topic, subscription, limit, message) {
+        const ids = await this.getErrorEventIds(topic, subscription, limit, message);
         if (!ids.length) {
             return [];
         }
@@ -161,22 +189,7 @@ class client {
     }
 
     async getFailEvents(topic, subscription, limit) {
-        const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
-            qb.where({
-                topic,
-                subscription,
-                isError: false,
-                isPreconditionFail: false,
-                isSuccess: false,
-            });
-            qb.select({ eventId: 'eventId' });
-            qb.orderBy('created_at', 'ASC');
-        }).fetchPage({
-            limit,
-            withRelated: [],
-        });
-
-        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        const ids = await this.getFailEventIds(topic, subscription, limit);
         if (!ids.length) {
             return [];
         }
@@ -190,22 +203,7 @@ class client {
     }
 
     async getPreconditionFailEvents(topic, subscription, limit = Number.MAX_SAFE_INTEGER) {
-        const eventIdList = await strapi.query('event-subscription').model.query((qb) => {
-            qb.where({
-                topic,
-                subscription,
-                isError: false,
-                isPreconditionFail: true,
-                isSuccess: false,
-            });
-            qb.select({ eventId: 'eventId' });
-            qb.orderBy('created_at', 'ASC');
-        }).fetchPage({
-            limit,
-            withRelated: [],
-        });
-
-        const ids = eventIdList.toJSON().map((item) => item.eventId);
+        const ids = await this.getPreconditionFailEventIds(topic, subscription, limit);
         if (!ids.length) {
             return [];
         }
