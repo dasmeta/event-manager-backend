@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { subscribeLeaveSiteWarning } from '@/utils/leaveSiteWarning';
-import { sseNoticeState, useSseAction } from '@/hooks/useSseAction';
+import { scopeFromBody, sseNoticeState, useSseAction } from '@/hooks/useSseAction';
 
 jest.mock('antd', () => ({
   Progress: () => null,
@@ -12,12 +12,29 @@ jest.mock('@/services/sseRequest', () => ({
   sseRequest: jest.fn().mockResolvedValue({}),
 }));
 
+describe('scopeFromBody', () => {
+  it('reads topic and subscription from the request body', () => {
+    expect(scopeFromBody({ topic: 'orders', subscription: 'email' })).toEqual({
+      topic: 'orders',
+      subscription: 'email',
+    });
+  });
+
+  it('ignores a body without topic or subscription', () => {
+    expect(scopeFromBody({})).toEqual({
+      topic: undefined,
+      subscription: undefined,
+    });
+  });
+});
+
 describe('sseNoticeState', () => {
   it('uses Working with no percent before progress', () => {
     expect(sseNoticeState(null)).toEqual({
       title: 'Working…',
       percent: undefined,
       detail: undefined,
+      target: undefined,
     });
   });
 
@@ -26,6 +43,7 @@ describe('sseNoticeState', () => {
       title: 'Republishing errors',
       percent: 50,
       detail: undefined,
+      target: undefined,
     });
   });
 
@@ -34,6 +52,7 @@ describe('sseNoticeState', () => {
       title: 'Working…',
       percent: 84,
       detail: undefined,
+      target: undefined,
     });
   });
 
@@ -42,6 +61,19 @@ describe('sseNoticeState', () => {
       title: 'Working…',
       percent: undefined,
       detail: 'Checked 10,000 events',
+      target: undefined,
+    });
+  });
+
+  it('joins topic and subscription for the toast target', () => {
+    expect(sseNoticeState(null, 'Republishing errors', {
+      topic: 'orders.created',
+      subscription: 'email-worker',
+    })).toEqual({
+      title: 'Republishing errors',
+      percent: undefined,
+      detail: undefined,
+      target: 'orders.created / email-worker',
     });
   });
 });

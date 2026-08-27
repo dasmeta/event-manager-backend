@@ -9,10 +9,31 @@ type RunOptions = {
   onProgress?: (progress: SseProgress) => void;
 };
 
-export function sseNoticeState(progress: SseProgress | null, actionTitle?: string) {
+type NoticeScope = {
+  topic?: string;
+  subscription?: string;
+};
+
+export function scopeFromBody(body: unknown): NoticeScope {
+  if (!body || typeof body !== 'object') {
+    return {};
+  }
+  const record = body as Record<string, unknown>;
+  return {
+    topic: typeof record.topic === 'string' ? record.topic : undefined,
+    subscription: typeof record.subscription === 'string' ? record.subscription : undefined,
+  };
+}
+
+export function sseNoticeState(
+  progress: SseProgress | null,
+  actionTitle?: string,
+  scope?: NoticeScope,
+) {
   const title = actionTitle || translations.working;
+  const target = [scope?.topic, scope?.subscription].filter(Boolean).join(' / ') || undefined;
   if (!progress) {
-    return { title, percent: undefined as number | undefined, detail: undefined as string | undefined };
+    return { title, percent: undefined as number | undefined, detail: undefined as string | undefined, target };
   }
   const percent = progress.total
     ? Math.min(100, Math.round(((progress.done || 0) / progress.total) * 100))
@@ -20,17 +41,23 @@ export function sseNoticeState(progress: SseProgress | null, actionTitle?: strin
   const detail = percent == null && typeof progress.done === 'number'
     ? translations.checkedEvents.replace('{count}', progress.done.toLocaleString('en-US'))
     : undefined;
-  return { title, percent, detail };
+  return { title, percent, detail, target };
 }
 
-function noticeDescription(progress: SseProgress | null) {
-  const { percent, detail } = sseNoticeState(progress);
+function noticeDescription(progress: SseProgress | null, scope?: NoticeScope) {
+  const { percent, detail } = sseNoticeState(progress, undefined, scope);
   return (
     <>
       {percent != null
         ? <Progress percent={percent} status={percent >= 100 ? 'success' : 'active'} />
         : <Progress percent={100} status="active" showInfo={false} />}
       {detail ? <div>{detail}</div> : null}
+      {scope?.topic || scope?.subscription ? (
+        <div style={{ marginTop: 4, fontSize: 12, lineHeight: 1.4, color: 'rgba(0,0,0,0.45)', wordBreak: 'break-all' }}>
+          {scope.topic ? <div>{scope.topic}</div> : null}
+          {scope.subscription ? <div>{scope.subscription}</div> : null}
+        </div>
+      ) : null}
     </>
   );
 }
@@ -59,13 +86,14 @@ export function useSseAction() {
     const noticeKey = noticeKeyRef.current;
 
     const actionTitle = runOptions?.title || translations.working;
+    const scope = scopeFromBody(body);
 
     setProcessing(true);
     setProgress(null);
     notification.open({
       key: noticeKey,
       message: actionTitle,
-      description: noticeDescription(null),
+      description: noticeDescription(null, scope),
       duration: 0,
     });
 
@@ -75,11 +103,11 @@ export function useSseAction() {
         onProgress: (next) => {
           setProgress(next);
           runOptions?.onProgress?.(next);
-          const { title } = sseNoticeState(next, actionTitle);
+          const { title } = sseNoticeState(next, actionTitle, scope);
           notification.open({
             key: noticeKey,
             message: title,
-            description: noticeDescription(next),
+            description: noticeDescription(next, scope),
             duration: 0,
           });
         },
@@ -87,7 +115,7 @@ export function useSseAction() {
       notification.open({
         key: noticeKey,
         message: actionTitle,
-        description: noticeDescription({ done: 1, total: 1 }),
+        description: noticeDescription({ done: 1, total: 1 }, scope),
         duration: 2,
       });
       return result;
