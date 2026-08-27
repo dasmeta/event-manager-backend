@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
-import { Popconfirm, message } from "antd";
+import React, { useCallback } from "react";
+import { Popconfirm } from "antd";
 import { LoadingOutlined } from "@ant-design/icons"
 import { isAnomaly } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
+import { useSseAction } from "@/hooks/useSseAction";
 import translations from "@/assets/translations";
-import { eventSubscriptionApi } from "@/services/api";
 import styles from "../style.less";
 
 interface Props {
@@ -13,21 +13,16 @@ interface Props {
 }
 
 const Anomaly: React.FC<Props> = ({ item, refresh }) => {
-    const [processing, setProcessing] = useState(false);
+    const { run, processing } = useSseAction();
 
     const handleCleanAnomaly = useCallback(() => {
-        setProcessing(true);
-        eventSubscriptionApi.eventSubscriptionsCleanAnomalyPost({
+        run('/event-subscriptions/clean-anomaly', {
             topic: item.topic,
             subscription: item.subscription,
-        }).then(() => {
-            setProcessing(false);
+        }, { title: translations.actionCleanAnomaly }).then(() => {
             refresh();
-        })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });;
-    }, [item]);
+        }).catch(() => {});
+    }, [item, run, refresh]);
 
     if (!isAnomaly(item)) {
         return null;

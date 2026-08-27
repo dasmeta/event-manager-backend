@@ -120,4 +120,34 @@ describe('republish batching', () => {
         expect(mockStore.getEventsByIds.mock.calls.map((call) => call[0])).toEqual([uniqueIds]);
         expect(publish).toHaveBeenCalledTimes(uniqueIds.length);
     });
+
+    it('emits progress per fetch batch', async () => {
+        const eventIds = ids(FETCH_BATCH_SIZE + 1);
+        mockStore.getErrorEventIds.mockResolvedValue(eventIds);
+        const onProgress = jest.fn();
+
+        await eventService.republishError('topic', 'sub', Number.MAX_SAFE_INTEGER, { onProgress });
+
+        expect(onProgress.mock.calls.map((call) => call[0])).toEqual([
+            { done: 0, total: FETCH_BATCH_SIZE + 1 },
+            { done: FETCH_BATCH_SIZE, total: FETCH_BATCH_SIZE + 1 },
+            { done: FETCH_BATCH_SIZE + 1, total: FETCH_BATCH_SIZE + 1 },
+        ]);
+    });
+
+    it('stops further fetches when cancelled', async () => {
+        const eventIds = ids(FETCH_BATCH_SIZE + 1);
+        mockStore.getErrorEventIds.mockResolvedValue(eventIds);
+        const signal = { cancelled: false };
+        const onProgress = jest.fn((progress) => {
+            if (progress.done > 0) {
+                signal.cancelled = true;
+            }
+        });
+
+        await eventService.republishError('topic', 'sub', Number.MAX_SAFE_INTEGER, { signal, onProgress });
+
+        expect(mockStore.getEventsByIds).toHaveBeenCalledTimes(1);
+        expect(publish).toHaveBeenCalledTimes(FETCH_BATCH_SIZE);
+    });
 });

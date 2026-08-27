@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import { Button, message } from "antd";
+import { useCallback } from "react";
+import { Button } from "antd";
 import translations from "@/assets/translations";
-import { eventStatsApi } from "@/services/api";
 import { IconCalculate } from "@/assets/icons";
+import { useSseAction } from "@/hooks/useSseAction";
 
 interface Props {
     refresh: () => {}
@@ -10,26 +10,20 @@ interface Props {
 }
 
 const CalculateAction: React.FC<Props> = ({ refresh, showLoader }) => {
-    const [calculating, setCalculating] = useState<boolean>(false);
+    const { run, processing } = useSseAction();
     const handleCalculateStats = useCallback(() => {
-        setCalculating(true);
         showLoader();
-
-        eventStatsApi.eventStatsCalculatePost({})
-            .then(() => {
+        run('/event-stats/calculate', {}, { title: translations.actionCalculate })
+            .catch(() => {})
+            .finally(() => {
                 refresh();
-                setCalculating(false);
-            })
-            .catch(() => {
-                message.error(translations.somethingWentWrong)
-                setCalculating(false);
             });
-    }, []);
+    }, [run, refresh, showLoader]);
 
     return (
         <Button
             icon={<IconCalculate />}
-            loading={calculating}
+            loading={processing}
             onClick={handleCalculateStats}
         >
             {translations.calculate}

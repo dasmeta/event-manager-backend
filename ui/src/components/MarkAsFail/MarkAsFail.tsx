@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { DatePicker, Popover, Button, message } from "antd";
-import { eventSubscriptionApi } from "@/services/api";
-import translations from "@/assets/translations";
+import { DatePicker, Popover, Button } from "antd";
 import { IconShieldFail } from "@/assets/icons";
+import { useSseAction } from "@/hooks/useSseAction";
+import translations from "@/assets/translations";
 const { RangePicker } = DatePicker;
 
 interface Props {
@@ -12,22 +12,17 @@ interface Props {
 
 const MarkAsFail: React.FC<Props> = ({ item, refresh }) => {
     const [range, setRange] = useState([]);
-    const [processing, setProcessing] = useState(false);
+    const { run, processing } = useSseAction();
     const handleMarkAsFail = useCallback(() => {
-        setProcessing(true);
-        eventSubscriptionApi.eventSubscriptionsMarkAsFailPost({
+        run('/event-subscriptions/mark-as-fail', {
             topic: item.topic,
             subscription: item.subscription,
             start: range[0].toDate(),
             end: range[1].toDate(),
-        }).then(() => {
-            setProcessing(false);
+        }, { title: translations.actionMarkAsFail }).then(() => {
             refresh();
-        })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });
-    }, [item, range]);
+        }).catch(() => {});
+    }, [item, range, run, refresh]);
 
     return (
         <Popover

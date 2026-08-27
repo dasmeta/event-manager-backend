@@ -7,6 +7,7 @@
 
 const { logger } = require("@dasmeta/event-manager-utils");
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
+const { isCancelled, reportProgress } = require("../../../helper/sse");
 const store = dbClientFactory.createClient();
 
 module.exports = {
@@ -14,19 +15,30 @@ module.exports = {
         return store.getErrors(topic, subscription, start, limit);
     },
 
-    async cleanAnomaly(topic, subscription) {
-        return store.removeUnnecessarySubscriptions(topic, subscription);
+    async cleanAnomaly(topic, subscription, opts = {}) {
+        if (isCancelled(opts)) {
+            return;
+        }
+        const result = await store.removeUnnecessarySubscriptions(topic, subscription);
+        return result;
     },
 
-    async populateMissing(topic, subscription, as = "fail") {
+    async populateMissing(topic, subscription, as = "fail", opts = {}) {
         const missingEvents = await store.getMissingEvents(topic, subscription);
         const missingEventIds = missingEvents.map(o => o._id ? o._id.eventId.toString() : o.id);
     
         const events = (await store.getExistingEvents(missingEventIds)).map(item => item._id ? item._id.toString() : item.id);
     
         let insertCount = 0;
+        const total = events.length;
         for (const eventId of events) {
-    
+            if (isCancelled(opts)) {
+                return {
+                    insertCount,
+                    eventCount: missingEvents.length,
+                };
+            }
+
             const insertData = {
                 eventId,
                 topic,
@@ -46,6 +58,7 @@ module.exports = {
             insertCount++;
             
             await strapi.query('event-subscription').create(insertData);
+            reportProgress(opts, { done: insertCount, total });
         }
         return {
             insertCount,
@@ -53,7 +66,7 @@ module.exports = {
         };
     },
 
-    async markMissingAsError(topic, subscription) {
+    async markMissingAsError(topic, subscription, opts = {}) {
 
         if (logger.isDebug()) {
             logger.debug("MARK MISSING AS ERROR START SLOW RUNNING...", { topic, subscription });
@@ -61,7 +74,13 @@ module.exports = {
 
         const limit = 10000;
         let insertCount = 0;
+        let processed = 0;
+        const total = Number(await strapi.query('event').count({ topic })) || 0;
+        reportProgress(opts, { done: 0, total });
         for (let i = 0; i <= 1000; i++) {
+            if (isCancelled(opts)) {
+                return { insertCount };
+            }
             if (logger.isDebug()) {
                 logger.debug(`Iteration ${i}`, { topic, subscription });
             }
@@ -80,11 +99,16 @@ module.exports = {
             }, {});
 
             for (const eventId of eventIds) {
+                if (isCancelled(opts)) {
+                    return { insertCount };
+                }
                 if (eventSubscriptions[eventId.toString()]) {
+                    processed++;
                     continue;
                 }
 
                 insertCount++;
+                processed++;
                 await store.createOrUpdateSubscription({
                         eventId,
                         topic,
@@ -105,6 +129,7 @@ module.exports = {
                     logger.debug(`Inserted Record:`, { topic, subscription, eventId });
                 }
             }
+            reportProgress(opts, { done: processed, total });
         }
 
         if (logger.isDebug()) {
@@ -116,8 +141,10 @@ module.exports = {
         };
     },
 
-    async markAsFail(topic, subscription, start, end) {
-
+    async markAsFail(topic, subscription, start, end, opts = {}) {
+        if (isCancelled(opts)) {
+            return;
+        }
         await store.updateSubscriptionByDate(
             topic,
             subscription,
@@ -131,8 +158,10 @@ module.exports = {
         );
     },
 
-    async markAsSuccess(topic, subscription, type) {
-
+    async markAsSuccess(topic, subscription, type, opts = {}) {
+        if (isCancelled(opts)) {
+            return;
+        }
         await store.updateSubscriptionByType(
             topic,
             subscription,
@@ -146,8 +175,10 @@ module.exports = {
         )
     },
 
-    async markSingleAsSuccess(topic, subscription, events, message) {
-
+    async markSingleAsSuccess(topic, subscription, events, message, opts = {}) {
+        if (isCancelled(opts)) {
+            return;
+        }
         await store.updateSubscriptionByEvents(
             topic,
             subscription,

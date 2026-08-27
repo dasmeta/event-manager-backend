@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { Button, message } from "antd";
+import { Button } from "antd";
 import { DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
-import { eventSubscriptionApi } from "@/services/api";
+import { useSseAction } from "@/hooks/useSseAction";
 
 interface Props {
     item: any;
@@ -10,23 +10,18 @@ interface Props {
 }
 
 const FixMissingAction: React.FC<Props> = ({ item, refresh }) => {
-    const [processing, setProcessing] = useState(false);
+    const { run, processing } = useSseAction();
     const handleCleanAnomaly = useCallback(() => {
-
-        if(!processing) {
-            setProcessing(true);
-            eventSubscriptionApi.eventSubscriptionsMarkMissingAsErrorPost({
-                topic: item.topic,
-                subscription: item.subscription
-            }).then(() => {
-                setProcessing(false);
-                refresh();
-            })
-            .catch(() => {
-                message.error(translations.somethingWentWrong);
-            });
+        if (processing) {
+            return;
         }
-    }, [item]);
+        run('/event-subscriptions/mark-missing-as-error', {
+            topic: item.topic,
+            subscription: item.subscription
+        }, { title: translations.actionFixMissing }).then(() => {
+            refresh();
+        }).catch(() => {});
+    }, [item, processing, run, refresh]);
 
     return (
         <Button size="small" onClick={handleCleanAnomaly}>

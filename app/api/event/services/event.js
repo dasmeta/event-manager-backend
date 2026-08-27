@@ -2,6 +2,7 @@ const uuid = require("uuid/v4");
 const { queue, logger } = require("@dasmeta/event-manager-utils");
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
 const sanitizeKeys = require("../../../helper/sanitize-keys");
+const { isCancelled, reportProgress } = require("../../../helper/sse");
 const store = dbClientFactory.createClient();
 
 const REPUBLISH_FETCH_BATCH_SIZE = 100;
@@ -28,16 +29,19 @@ async function updateEvent(eventId, data) {
     await strapi.query("event").update({ id: eventId }, data);
 }
 
-async function mapWithConcurrency(items, concurrency, mapper) {
+async function mapWithConcurrency(items, concurrency, mapper, opts) {
     const results = [];
     for (let i = 0; i < items.length; i += concurrency) {
+        if (isCancelled(opts)) {
+            return results;
+        }
         const slice = items.slice(i, i + concurrency);
         results.push(...await Promise.all(slice.map(mapper)));
     }
     return results;
 }
 
-async function republish(topic, subscription, list) {
+async function republish(topic, subscription, list, opts) {
     return mapWithConcurrency(list, REPUBLISH_CONCURRENCY, async item => {
         const eventId = item._id ? item._id.toString() : item.id;
         const { traceId, dataSource, data } = item;
@@ -61,7 +65,7 @@ async function republish(topic, subscription, list) {
         }
         await updateEvent(eventId, { messageId });
         return eventId;
-    });
+    }, opts);
 }
 
 function uniqueEventIds(ids) {
@@ -78,17 +82,29 @@ function uniqueEventIds(ids) {
     return unique;
 }
 
-async function republishByEventIds(topic, subscription, ids) {
+async function republishByEventIds(topic, subscription, ids, opts = {}) {
     if (!ids || !ids.length) {
         return [];
     }
 
     const uniqueIds = uniqueEventIds(ids);
+    const total = uniqueIds.length;
+    reportProgress(opts, {
+        done: 0,
+        total,
+    });
     const results = [];
     for (let i = 0; i < uniqueIds.length; i += REPUBLISH_FETCH_BATCH_SIZE) {
+        if (isCancelled(opts)) {
+            return results;
+        }
         const batchIds = uniqueIds.slice(i, i + REPUBLISH_FETCH_BATCH_SIZE);
         const events = await store.getEventsByIds(batchIds);
-        results.push(...await republish(topic, subscription, events || []));
+        results.push(...await republish(topic, subscription, events || [], opts));
+        reportProgress(opts, {
+            done: Math.min(i + batchIds.length, total),
+            total,
+        });
     }
     return results;
 }
@@ -157,37 +173,37 @@ module.exports = {
     return messageId;
   },
 
-  republishError: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
+  republishError: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER, opts = {}) => {
     const ids = await store.getErrorEventIds(topic, subscription, limit);
 
     if (logger.isDebug()) {
         logger.debug("REPUBLISH ERROR", { topic, subscription, count: ids.length });
     }
 
-    return republishByEventIds(topic, subscription, ids);
+    return republishByEventIds(topic, subscription, ids, opts);
   },
   
-  republishFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
+  republishFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER, opts = {}) => {
     const ids = await store.getFailEventIds(topic, subscription, limit);
 
     if (logger.isDebug()) {
         logger.debug("REPUBLISH FAIL", { topic, subscription, count: ids.length });
     }
 
-    return republishByEventIds(topic, subscription, ids);
+    return republishByEventIds(topic, subscription, ids, opts);
   },
 
-  republishPreconditionFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER) => {
+  republishPreconditionFail: async (topic, subscription, limit = Number.MAX_SAFE_INTEGER, opts = {}) => {
     const ids = await store.getPreconditionFailEventIds(topic, subscription, limit);
 
     if (logger.isDebug()) {
         logger.debug("REPUBLISH PRECONDITION FAIL", { topic, subscription, count: ids.length });
     }
 
-    return republishByEventIds(topic, subscription, ids);
+    return republishByEventIds(topic, subscription, ids, opts);
   },
 
-  republishSingleError: async (topic, subscription, events, message, limit = Number.MAX_SAFE_INTEGER) => {
+  republishSingleError: async (topic, subscription, events, message, limit = Number.MAX_SAFE_INTEGER, opts = {}) => {
     const ids = events && events.length > 0
         ? events
         : await store.getErrorEventIds(topic, subscription, limit, message);
@@ -196,6 +212,6 @@ module.exports = {
         logger.debug("REPUBLISH SINGLE ERROR", { topic, subscription, events });
     }
 
-    return republishByEventIds(topic, subscription, ids);
+    return republishByEventIds(topic, subscription, ids, opts);
   },
 };

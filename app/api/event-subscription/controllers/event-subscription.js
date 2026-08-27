@@ -1,9 +1,6 @@
 'use strict';
 
-/**
- * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
- * to customize this controller
- */
+const { runBulk } = require('../../../helper/sse');
 
 module.exports = {
 
@@ -18,49 +15,46 @@ module.exports = {
 
     async cleanAnomaly(ctx) {
         const {topic, subscription} = ctx.request.body;
-        await strapi.services['event-subscription'].cleanAnomaly(topic, subscription);
-        // await strapi.services['event-stats'].calculateStats();
-    
-        ctx.send({});
+        await runBulk(ctx, `cleanAnomaly:${topic}:${subscription}`, (opts) =>
+            strapi.services['event-subscription'].cleanAnomaly(topic, subscription, opts)
+        );
     },
 
     async populateMissing(ctx) {
         const {topic, subscription, as} = ctx.request.body;
-        await strapi.services['event-subscription'].populateMissing(topic, subscription, as);
-        // await strapi.services['event-stats'].calculateStats();
-    
-        ctx.send({});
+        await runBulk(ctx, `populateMissing:${topic}:${subscription}`, (opts) =>
+            strapi.services['event-subscription'].populateMissing(topic, subscription, as, opts)
+        );
     },
 
     async markMissingAsError(ctx) {
         const {topic, subscription} = ctx.request.body;
-        await strapi.services['event-subscription'].markMissingAsError(topic, subscription);
-    
-        ctx.send({});
+        await runBulk(ctx, `markMissingAsError:${topic}:${subscription}`, (opts) =>
+            strapi.services['event-subscription'].markMissingAsError(topic, subscription, opts)
+        );
     },
 
     async markAsFail(ctx) {
         const {topic, subscription, start, end} = ctx.request.body;
-        await strapi.services['event-subscription'].markAsFail(topic, subscription, new Date(start), new Date(end));
-        // await strapi.services['event-stats'].calculateStats();
-    
-        ctx.send({});
+        await runBulk(ctx, `markAsFail:${topic}:${subscription}`, (opts) =>
+            strapi.services['event-subscription'].markAsFail(topic, subscription, new Date(start), new Date(end), opts)
+        );
     },
 
     async markAsSuccess(ctx) {
         const {topic, subscription, type} = ctx.request.body;
-        await strapi.services['event-subscription'].markAsSuccess(topic, subscription, type);
-        await strapi.services['event-stats'].calculateSingle(topic, subscription);
-    
-        ctx.send({});
+        await runBulk(ctx, `markAsSuccess:${topic}:${subscription}`, async (opts) => {
+            await strapi.services['event-subscription'].markAsSuccess(topic, subscription, type, opts);
+            await strapi.services['event-stats'].calculateSingle(topic, subscription, opts);
+        });
     },
 
     async markSingleAsSuccess(ctx) {
         const {topic, subscription, events, message} = ctx.request.body;
-        await strapi.services['event-subscription'].markSingleAsSuccess(topic, subscription, events, message);
-        await strapi.services['event-stats'].calculateSingle(topic, subscription);
-
-        ctx.send({});
+        await runBulk(ctx, `markSingleAsSuccess:${topic}:${subscription}`, async (opts) => {
+            await strapi.services['event-subscription'].markSingleAsSuccess(topic, subscription, events, message, opts);
+            await strapi.services['event-stats'].calculateSingle(topic, subscription, opts);
+        });
     },
 
     async recordStart(ctx) {

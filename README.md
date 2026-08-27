@@ -7,6 +7,7 @@ Welcome to Event Manager Backend (event-manager-backend)
  * [Installation](#installation)
  * [Configuration](#configuration)
  * [Troubleshooting & FAQ](#troubleshooting-faq)
+ * [Long-running bulk actions (SSE)](#long-running-bulk-actions-sse)
 
 ## Introduction
 The service is based on Strapi JS framework.
@@ -187,9 +188,22 @@ $ docker logs -f --since 2m em-backend
 - Run unit tests (Jest; mocked — no live DB required)
 ```shell
 $ cd app && yarn test
+# UI SSE client tests:
+$ cd ui && yarn test
 # or inside the container:
 $ docker exec em-backend bash -c "yarn test"
 ```
+
+## Long-running bulk actions (SSE)
+
+The UI board actions that can run for a long time (populate missing, mark-missing-as-error, calculate, republish, mark-as-*, clean-anomaly) use **Server-Sent Events** over the same POST URLs.
+
+- The UI sends `Accept: text/event-stream` and streams `progress` / `result` / `error` events.
+- Callers that omit that header (SDK, curl, older UI) still get a normal JSON response when the job finishes. No sticky sessions are required: the replica that accepted the POST owns the stream.
+- The app sends heartbeats every ~15 seconds and `X-Accel-Buffering: no`. You should still configure the reverse proxy / ingress:
+  - nginx: `proxy_buffering off;`
+  - `proxy_read_timeout` (and ALB/ingress idle timeouts) should be longer than the longest expected job, not the default 30–60s idle cap
+- An in-memory lock ignores double-clicks on the **same** pod only. Two replicas can still run the same operation if both receive a request.
 
 # pubSub
 

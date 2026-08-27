@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
-import { Popconfirm, Radio, message } from "antd";
+import { Popconfirm, Radio } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { isMissing } from "@/utils/checker";
 import formatMoney from "@/utils/format-number";
 import translations from "@/assets/translations";
-import { eventSubscriptionApi } from "@/services/api";
+import { useSseAction } from "@/hooks/useSseAction";
 import styles from "../style.less";
 
 interface Props {
@@ -13,8 +13,8 @@ interface Props {
 }
 
 const Missing: React.FC<Props> = ({ item, refresh }) => {
-    const [processing, setProcessing] = useState(false);
     const [as, setAs] = useState("fail");
+    const { run, processing } = useSseAction();
     const handleChangeRadio = useCallback(
         e => {
             setAs(e.target.value);
@@ -22,19 +22,14 @@ const Missing: React.FC<Props> = ({ item, refresh }) => {
         [setAs]
     );
     const handlePopulateMissing = useCallback(() => {
-        setProcessing(true);
-        eventSubscriptionApi.eventSubscriptionsPopulateMissingPost({
+        run('/event-subscriptions/populate-missing', {
             topic: item.topic,
             subscription: item.subscription,
             as,
-        }).then(() => {
-            setProcessing(false);
+        }, { title: translations.actionPopulateMissing }).then(() => {
             refresh();
-        })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });
-    }, [item, as]);
+        }).catch(() => {});
+    }, [item, as, run, refresh]);
 
     if (!isMissing(item)) {
         return null;

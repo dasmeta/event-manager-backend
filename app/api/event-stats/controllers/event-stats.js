@@ -1,19 +1,17 @@
 'use strict';
 
-/**
- * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
- * to customize this controller
- */
+const { runBulk } = require('../../../helper/sse');
 
 module.exports = {
     async calculate(ctx) {
-        await strapi.services['event-stats'].calculate();
-        ctx.send();
+        await runBulk(ctx, 'event-stats:calculate', (opts) =>
+            strapi.services['event-stats'].calculate(opts)
+        );
     },
     async calculateSingle(ctx) {
         const {topic, subscription} = ctx.request.body;
-        await strapi.services['event-stats'].calculateSingle(topic, subscription);
-    
-        ctx.send();
+        await runBulk(ctx, `calculateSingle:${topic}:${subscription}`, (opts) =>
+            strapi.services['event-stats'].calculateSingle(topic, subscription, opts)
+        );
     },
 };
