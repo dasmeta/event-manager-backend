@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Button, Space, Popover, Input } from "antd";
 import { RedoOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
-import { eventApi, eventSubscriptionApi } from "@/services/api";
+import { useSseAction } from "@/hooks/useSseAction";
 import { IconShieldDone } from "@/assets/icons";
 import styles from "./ErrorActions.less";
 
@@ -16,13 +16,11 @@ interface Props {
 }
 
 const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, refresh, showLimit = true }) => {
-    const [republishing, setRepublishing] = useState(false);
-    const [processing, setProcessing] = useState(false);
-    const [marking, setMarking] = useState(false);
     const [value, setValue] = useState();
+    const { run: runRepublish, processing: republishing } = useSseAction();
+    const { run: runMark, processing: marking } = useSseAction();
 
     const handleRepublish = useCallback(async (limits?: number) => {
-        setRepublishing(true);
         const data: Record<string, any> = {
             topic,
             subscription,
@@ -36,21 +34,26 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
             data.message = error;
         }
 
-        await eventApi.eventsRepublishSingleErrorPost(data);
-        setRepublishing(false);
-    }, [topic, subscription, events, showLimit, error]);
+        try {
+            await runRepublish('/events/republish-single-error', data, { title: translations.actionRepublish });
+        } catch {
+            return;
+        }
+    }, [topic, subscription, events, showLimit, error, runRepublish]);
 
     const handleMarkAsSuccess = useCallback(async (all = false) => {
-        setMarking(true);
-        await eventSubscriptionApi.eventSubscriptionsMarkSingleAsSuccessPost({
-            topic,
-            subscription,
-            events: all ? [] : events,
-            message: error,
-        });
-        setMarking(false);
-        await refresh();
-    }, [topic, subscription, events]);
+        try {
+            await runMark('/event-subscriptions/mark-single-as-success', {
+                topic,
+                subscription,
+                events: all ? [] : events,
+                message: error,
+            }, { title: translations.actionMarkAsSuccess });
+            await refresh();
+        } catch {
+            return;
+        }
+    }, [topic, subscription, events, error, runMark, refresh]);
 
     if(!showLimit) {
         return (
@@ -60,7 +63,7 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
                     {" "}
                     {translations.republish}
                 </Button>
-                <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(false)} icon={<IconShieldDone />}>
+                <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(false)} icon={<IconShieldDone />} loading={marking}>
                     {translations.markAsSuccess}
                 </Button>
             </Space>
@@ -97,7 +100,7 @@ const ErrorActions: React.FC<Props> = ({ topic, subscription, error, events, ref
                 </Button>
             </Popover>
 
-            <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(true)} icon={<IconShieldDone />}>
+            <Button className={styles.btnStyle} size="small" onClick={() => handleMarkAsSuccess(true)} icon={<IconShieldDone />} loading={marking}>
                 {translations.markAsSuccess}
             </Button>
         </Space>

@@ -1,5 +1,7 @@
 'use strict';
 
+const { runBulk } = require('../../../helper/sse');
+
 module.exports = {
 
   async authenticated(ctx) {
@@ -81,33 +83,29 @@ module.exports = {
 
   async republishError(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishError(topic, subscription, limit);
-    // await strapi.services['event-stats'].calculate();
-
-    ctx.send();
+    await runBulk(ctx, `republishError:${topic}:${subscription}`, (opts) =>
+      strapi.services['event'].republishError(topic, subscription, limit, opts)
+    );
   },
   async republishFail(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishFail(topic, subscription, limit);
-    // await strapi.services['event-stats'].calculate();
-
-    ctx.send();
+    await runBulk(ctx, `republishFail:${topic}:${subscription}`, (opts) =>
+      strapi.services['event'].republishFail(topic, subscription, limit, opts)
+    );
   },
 
   async republishPreconditionFail(ctx) {
     const {topic, subscription, limit} = ctx.request.body;
-    await strapi.services['event'].republishPreconditionFail(topic, subscription, limit);
-    // await strapi.services['event'].calculateStats();
-
-    ctx.send();
+    await runBulk(ctx, `republishPreconditionFail:${topic}:${subscription}`, (opts) =>
+      strapi.services['event'].republishPreconditionFail(topic, subscription, limit, opts)
+    );
   },
 
   async republishSingleError(ctx) {
     const {topic, subscription, events, message, limit} = ctx.request.body;
-    await strapi.services['event'].republishSingleError(topic, subscription, events, message, limit);
-    // await strapi.services['event'].calculateStats();
-
-    ctx.send();
+    await runBulk(ctx, `republishSingleError:${topic}:${subscription}`, (opts) =>
+      strapi.services['event'].republishSingleError(topic, subscription, events, message, limit, opts)
+    );
   },
 
   // use POST /event-subscription/clean-anomaly

@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
-import { Button, message } from "antd";
+import { useCallback } from "react";
+import { Button } from "antd";
 import { DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
 import translations from "@/assets/translations";
-import { eventSubscriptionApi } from "@/services/api";
+import { useSseAction } from "@/hooks/useSseAction";
 
 interface Props {
     item: any;
@@ -10,20 +10,15 @@ interface Props {
 }
 
 const CleanAnomalyAction: React.FC<Props> = ({ item, refresh }) => {
-    const [processing, setProcessing] = useState(false);
+    const { run, processing } = useSseAction();
     const handleCleanAnomaly = useCallback(() => {
-        setProcessing(true);
-        eventSubscriptionApi.eventSubscriptionsCleanAnomalyPost({ 
+        run('/event-subscriptions/clean-anomaly', { 
             topic: item.topic,
             subscription: item.subscription 
-        }).then(() => {
-            setProcessing(false);
+        }, { title: translations.actionCleanAnomaly }).then(() => {
             refresh();
-        })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });
-    }, [item]);
+        }).catch(() => {});
+    }, [item, run, refresh]);
 
     return (
         <Button size="small" onClick={handleCleanAnomaly}>

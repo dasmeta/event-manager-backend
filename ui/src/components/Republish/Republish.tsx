@@ -1,46 +1,40 @@
 import { useState, useCallback } from "react";
-import { Input, Popover, Button, message } from "antd";
+import { Input, Popover, Button } from "antd";
 import { LoadingOutlined, RedoOutlined } from "@ant-design/icons";
-import translations from "@/assets/translations";
+import { useSseAction } from "@/hooks/useSseAction";
 
 interface Props {
     subscription: string;
     topic: string;
-    republish: (data: any) => {};
+    path: string;
     refresh: () => {};
     title: string;
     buttonText: string;
+    actionTitle: string;
 }
 
-const Republish: React.FC<Props> = ({ subscription, topic, republish, refresh, title, buttonText }) => {
+const Republish: React.FC<Props> = ({ subscription, topic, path, refresh, title, buttonText, actionTitle }) => {
     const [value, setValue] = useState(null);
-    const [processing, setProcessing] = useState(false);
-    // const [visible, setVisible] = useState(false);
+    const { run, processing } = useSseAction();
     const handleRepublish = useCallback(() => {
-        setProcessing(true);
-        // setVisible(false);
-        const data = {
+        const data: Record<string, any> = {
             topic,
             subscription
         };
         if(value) {
             data.limit = value;
         }
-        republish(data)
+        run(path, data, { title: actionTitle })
         .then(() => {
-            setProcessing(false);
             refresh();
         })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });
-    }, [topic, subscription, value, republish]);
+        .catch(() => {});
+    }, [topic, subscription, value, path, actionTitle, run, refresh]);
 
     return (
         <Popover
             title={title}
             placement="top"
-            // open={visible}
             content={
                 <div>
                     <Input

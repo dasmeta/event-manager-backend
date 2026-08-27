@@ -6,10 +6,11 @@
  */
 
 const { dbClientFactory } = require("../../../helper/dbAdapter/dbClientFactory");
+const { isCancelled, reportProgress } = require("../../../helper/sse");
 const store = dbClientFactory.createClient();
 
 module.exports = {
-    async calculate() {
+    async calculate(opts = {}) {
 
         if(!process.env.USE_OLD_CALCULATE) {
 
@@ -20,12 +21,19 @@ module.exports = {
             const count = await strapi.query('event-stats').count();
 
             while(start <= count) {
+                if (isCancelled(opts)) {
+                    return;
+                }
                 const stats = await strapi.query('event-stats').find({_limit: 10, _start: start});
                 await Promise.all(stats.map(item => {
                     strapi.log.debug(`##### - ${++index} - #####`);
                     strapi.log.debug(`${item.topic} - ${item.subscription}`);
                     return this.calculateSingle(item.topic, item.subscription);
                 }));
+                reportProgress(opts, {
+                    done: Math.min(index, count),
+                    total: count,
+                });
                 start += limit;
             }
             return;
@@ -71,7 +79,10 @@ module.exports = {
         await Promise.all(bulk);
     },
 
-    async calculateSingle(topic, subscription) {
+    async calculateSingle(topic, subscription, opts = {}) {
+        if (isCancelled(opts)) {
+            return;
+        }
         const total = await strapi.query('event').count({ topic });
 
         const subscriptionData = await store.getGroupedSubscriptionsForSingleTopic(topic, subscription);
@@ -80,7 +91,7 @@ module.exports = {
         const missing = Math.max(total - count, 0);
         const fail = count - success - error - preconditionFail;
 
-        return store.createOrUpdateStats(
+        const result = await store.createOrUpdateStats(
             topic, 
             subscription,
             {
@@ -94,5 +105,6 @@ module.exports = {
                 missing,
             },
         );
+        return result;
     }
 };

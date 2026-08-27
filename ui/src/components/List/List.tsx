@@ -15,7 +15,6 @@ import MarkAsFail from "../MarkAsFail";
 import Republish from "../Republish";
 import formatMoney from "@/utils/format-number";
 import translations from "@/assets/translations";
-import { eventApi } from "@/services/api";
 import { IconCopy, IconLogs, IconFunctions } from "@/assets/icons";
 import styles from "./List.less"
 
@@ -134,9 +133,10 @@ export default React.memo(({
                             title="Republish fails for this subscription?"
                             subscription={subscription}
                             topic={topic}
-                            republish={(data) => eventApi.eventsRepublishFailPost(data)}
+                            path="/events/republish-fail"
                             refresh={refresh}
                             buttonText={translations.republishFail}
+                            actionTitle={translations.actionRepublishFail}
                         />
                     )}
                     {isError(item) && (
@@ -144,9 +144,10 @@ export default React.memo(({
                             title="Republish errors for this subscription?"
                             subscription={subscription}
                             topic={topic}
-                            republish={(data) => eventApi.eventsRepublishErrorPost(data)}
+                            path="/events/republish-error"
                             refresh={refresh}
                             buttonText={translations.republishError}
+                            actionTitle={translations.actionRepublishError}
                         />
                     )}
                     {isPreconditionFail(item) && (
@@ -154,9 +155,10 @@ export default React.memo(({
                             title="Republish precondition fails for this subscription?"
                             subscription={subscription}
                             topic={topic}
-                            republish={(data) => eventApi.eventsRepublishPreconditionFailPost(data)}
+                            path="/events/republish-precondition-fail"
                             refresh={refresh}
                             buttonText={translations.republishPreconditionFail}
+                            actionTitle={translations.actionRepublishPreconditionFail}
                         />
                     )}
                     <CleanAnomalyAction item={item} refresh={refresh} />

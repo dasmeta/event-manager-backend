@@ -1,27 +1,22 @@
-import { useCallback, useState } from "react";
-import { Popconfirm, message } from "antd";
+import { useCallback } from "react";
+import { Popconfirm } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import formatMoney from "@/utils/format-number";
-import { eventSubscriptionApi } from "@/services/api";
+import { useSseAction } from "@/hooks/useSseAction";
 import translations from "@/assets/translations";
 import styles from "@/assets/styles";
 
 export default ({ topic, subscription, type, count, refresh }) => {
-    const [processing, setProcessing] = useState(false);
+    const { run, processing } = useSseAction();
     const handleMarkAsSuccess = useCallback(() => {
-        setProcessing(true);
-        eventSubscriptionApi.eventSubscriptionsMarkAsSuccessPost({
+        run('/event-subscriptions/mark-as-success', {
             topic,
             subscription,
             type
-        }).then(() => {
-            setProcessing(false);
+        }, { title: translations.actionMarkAsSuccess }).then(() => {
             refresh();
-        })
-        .catch(() => {
-            message.error(translations.somethingWentWrong);
-        });
-    }, [topic, subscription]);
+        }).catch(() => {});
+    }, [topic, subscription, type, run, refresh]);
 
     return (
         <>
